@@ -68,7 +68,7 @@ function loadPDF(data) {
                         }
                     });
                     if (currentLine) textLines.push(currentLine);
-
+ console.log(lines);
                     // Processar as linhas para encontrar alternativas
                     processLines(textLines);
                 });
