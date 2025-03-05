@@ -90,7 +90,7 @@ function addRadioButtons() {
         alternatives.forEach((alt, index) => {
             if (text.toLowerCase().startsWith(alt.toLowerCase())) {
 
-                alert("entrou");
+                
                 // Criar um radio button
                 const radio = document.createElement('input');
                 radio.type = 'radio';
@@ -114,7 +114,7 @@ function addRadioButtons() {
                 // Se for a primeira alternativa (a)), criar um novo grupo
                 if (alt.toLowerCase() === 'a)') {
                     questionIndex++;
-                    alert(alt);
+                    
                 }
             }
         });
