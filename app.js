@@ -51,26 +51,16 @@ function loadPDF(data) {
                 // Extrair o texto da página
                 page.getTextContent().then(textContent => {
                     const textItems = textContent.items;
-                    const textLines = [];
 
-                    // Agrupar texto por coordenadas Y (linhas)
-                    let currentLine = '';
-                    let currentY = null;
-
+                    // Criar divs para cada linha de texto
                     textItems.forEach(item => {
-                        const y = item.transform[5];
-                        if (currentY !== y) {
-                            if (currentLine) textLines.push(currentLine);
-                            currentLine = item.str;
-                            currentY = y;
-                        } else {
-                            currentLine += item.str;
-                        }
+                        const div = document.createElement('div');
+                        div.textContent = item.str;
+                        pdfViewer.appendChild(div);
                     });
-                    if (currentLine) textLines.push(currentLine);
- console.log(lines);
-                    // Processar as linhas para encontrar alternativas
-                    processLines(textLines);
+
+                    // Adicionar radio buttons dinamicamente
+                    addRadioButtons();
                 });
 
                 // Renderizar a próxima página, se houver
@@ -86,53 +76,43 @@ function loadPDF(data) {
     });
 }
 
-// Processar as linhas de texto para encontrar alternativas
-function processLines(lines) {
+// Adicionar radio buttons dinamicamente
+function addRadioButtons() {
+    const divs = pdfViewer.querySelectorAll('div');
     let questionIndex = 0;
-    let i = 0;
 
-    while (i < lines.length) {
-        // Verificar se a linha atual começa com "a)"
-        if (lines[i].trim().startsWith('a)')) {
-            // Procurar as próximas alternativas (b), c), d), e))
-            const alternatives = ['a)', 'b)', 'c)', 'd)', 'e)', 'A)', 'B)', 'C)', 'D)', 'E)', '(A)', '(B)', '(C)', '(D)', '(E)'];
-            const foundAlternatives = [];
+    divs.forEach(div => {
+        const text = div.textContent.trim();
 
-            // Verificar as próximas linhas para encontrar as alternativas
-            for (let j = i; j < lines.length; j++) {
-                const line = lines[j].trim();
-                if (alternatives.some(alt => line.startsWith(alt))) {
-                    foundAlternatives.push(line);
-                    if (foundAlternatives.length === 5) break; // Todas as alternativas encontradas
+        // Verificar se o texto contém alternativas (a), b), c), d), e))
+        const alternatives = ['a)', 'b)', 'c)', 'd)', 'e)'];
+        alternatives.forEach((alt, index) => {
+            if (text.toLowerCase().startsWith(alt.toLowerCase())) {
+                // Criar um radio button
+                const radio = document.createElement('input');
+                radio.type = 'radio';
+                radio.name = `question${questionIndex}`;
+                radio.value = alt[0]; // Valor do radio button (a, b, c, d, e)
+
+                // Criar um label para o radio button
+                const label = document.createElement('label');
+                label.appendChild(radio);
+                label.appendChild(document.createTextNode(text));
+
+                // Criar um container para o radio button e o texto
+                const container = document.createElement('div');
+                container.className = 'radio-container';
+                container.appendChild(label);
+
+                // Substituir o conteúdo da div pelo container
+                div.innerHTML = '';
+                div.appendChild(container);
+
+                // Se for a primeira alternativa (a)), criar um novo grupo
+                if (alt.toLowerCase() === 'a)') {
+                    questionIndex++;
                 }
             }
-
-            // Se todas as alternativas forem encontradas, criar os radio buttons
-            if (foundAlternatives.length === 5) {
-                const questionDiv = document.createElement('div');
-                questionDiv.className = 'question';
-                questionDiv.innerHTML = `
-                    <label><input type="radio" name="question${questionIndex}" value="a"> ${foundAlternatives[0]}</label>
-                    <label><input type="radio" name="question${questionIndex}" value="b"> ${foundAlternatives[1]}</label>
-                    <label><input type="radio" name="question${questionIndex}" value="c"> ${foundAlternatives[2]}</label>
-                    <label><input type="radio" name="question${questionIndex}" value="d"> ${foundAlternatives[3]}</label>
-                    <label><input type="radio" name="question${questionIndex}" value="e"> ${foundAlternatives[4]}</label>
-                `;
-                pdfViewer.appendChild(questionDiv);
-
-                // Avançar para a próxima questão
-                i += foundAlternatives.length;
-                questionIndex++;
-            } else {
-                // Se não encontrar todas as alternativas, pular para a próxima linha
-                i++;
-            }
-        } else {
-            // Se não for uma questão, exibir a linha normalmente
-            const lineDiv = document.createElement('div');
-            lineDiv.textContent = lines[i];
-            pdfViewer.appendChild(lineDiv);
-            i++;
-        }
-    }
+        });
+    });
 }
