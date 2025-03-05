@@ -4,21 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leitor de PDF com Radio Buttons</title>
-    <!-- Inclua o PDF.js -->
-    <script src="pdfjs/pdf.js"></script>
 </head>
 <body>
     <h1>Leitor de PDF com Radio Buttons</h1>
     <input type="file" id="pdf-input" accept="application/pdf">
     <div id="pdf-viewer"></div>
 
-    <script>
-        // Configuração do worker
-        if (typeof pdfjsLib !== 'undefined') {
-            pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdfjs/pdf.worker.js';
-        }
-
-        // Restante do código JavaScript...
-    </script>
+    <!-- Carregue o script como um módulo -->
+    <script type="module" src="app.js"></script>
 </body>
 </html>
