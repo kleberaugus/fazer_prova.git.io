@@ -24,13 +24,18 @@
             display: block;
             margin: 5px 0;
         }
-        input[type="radio"] {
-            margin-right: 10px;
-        }
         .radio-container {
-            display: inline-block;
-            position: relative;
-            margin-left: 20px; /* Espaço para o radio button */
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .radio-container input[type="radio"] {
+            margin-right: 10px;
+            width: 16px;
+            height: 16px;
+        }
+        .radio-container label {
+            margin: 0;
         }
     </style>
 </head>
