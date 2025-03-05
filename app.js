@@ -84,11 +84,13 @@ function addRadioButtons() {
 
     divs.forEach(div => {
         const text = div.textContent.trim();
-alert("entrou"+text);
+
         // Verificar se o texto contém alternativas (a), b), c), d), e))
         const alternatives = ['a)', 'b)', 'c)', 'd)', 'e)'];
         alternatives.forEach((alt, index) => {
             if (text.toLowerCase().startsWith(alt.toLowerCase())) {
+
+                alert("entrou"+text);
                 // Criar um radio button
                 const radio = document.createElement('input');
                 radio.type = 'radio';
