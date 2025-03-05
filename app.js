@@ -78,13 +78,13 @@ function loadPDF(data) {
 
 // Adicionar radio buttons dinamicamente
 function addRadioButtons() {
-    alert("entrou");
+    
     const divs = pdfViewer.querySelectorAll('div');
     let questionIndex = 0;
 
     divs.forEach(div => {
         const text = div.textContent.trim();
-
+alert("entrou"+text);
         // Verificar se o texto contém alternativas (a), b), c), d), e))
         const alternatives = ['a)', 'b)', 'c)', 'd)', 'e)'];
         alternatives.forEach((alt, index) => {
