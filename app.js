@@ -1,10 +1,7 @@
-// Importe o PDF.js
-import * as pdfjsLib from './pdfjs/pdf.mjs';
+import * as pdfjsLib from 'https://mozilla.github.io/pdf.js/build/pdf.mjs';
 
 // Configuração do worker
-if (typeof pdfjsLib !== 'undefined') {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = './pdfjs/pdf.worker.mjs';
-}
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.mjs';
 
 // Elementos da interface
 const pdfInput = document.getElementById('pdf-input');
@@ -55,7 +52,7 @@ function loadPDF(data) {
                     const textItems = textContent.items;
                     const textLines = [];
 
-                    // Agrupar texto por linhas
+                    // Agrupar texto por coordenadas Y (linhas)
                     let currentLine = '';
                     let currentY = null;
 
@@ -94,28 +91,41 @@ function processLines(lines) {
     let i = 0;
 
     while (i < lines.length) {
-        // Verificar se as próximas 5 linhas são "a)", "b)", "c)", "d)", "e)"
-        if (i + 4 < lines.length &&
-            lines[i].trim().startsWith('a)') &&
-            lines[i + 1].trim().startsWith('b)') &&
-            lines[i + 2].trim().startsWith('c)') &&
-            lines[i + 3].trim().startsWith('d)') &&
-            lines[i + 4].trim().startsWith('e)')) {
-            // Criar um grupo de radio buttons para a questão
-            const questionDiv = document.createElement('div');
-            questionDiv.className = 'question';
-            questionDiv.innerHTML = `
-                <label><input type="radio" name="question${questionIndex}" value="a"> ${lines[i]}</label>
-                <label><input type="radio" name="question${questionIndex}" value="b"> ${lines[i + 1]}</label>
-                <label><input type="radio" name="question${questionIndex}" value="c"> ${lines[i + 2]}</label>
-                <label><input type="radio" name="question${questionIndex}" value="d"> ${lines[i + 3]}</label>
-                <label><input type="radio" name="question${questionIndex}" value="e"> ${lines[i + 4]}</label>
-            `;
-            pdfViewer.appendChild(questionDiv);
+        // Verificar se a linha atual começa com "a)"
+        if (lines[i].trim().startsWith('a)')) {
+            // Procurar as próximas alternativas (b), c), d), e))
+            const alternatives = ['a)', 'b)', 'c)', 'd)', 'e)'];
+            const foundAlternatives = [];
 
-            // Avançar 5 linhas
-            i += 5;
-            questionIndex++;
+            // Verificar as próximas linhas para encontrar as alternativas
+            for (let j = i; j < lines.length; j++) {
+                const line = lines[j].trim();
+                if (alternatives.includes(line.substring(0, 2))) {
+                    foundAlternatives.push(line);
+                    if (foundAlternatives.length === 5) break; // Todas as alternativas encontradas
+                }
+            }
+
+            // Se todas as alternativas forem encontradas, criar os radio buttons
+            if (foundAlternatives.length === 5) {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                questionDiv.innerHTML = `
+                    <label><input type="radio" name="question${questionIndex}" value="a"> ${foundAlternatives[0]}</label>
+                    <label><input type="radio" name="question${questionIndex}" value="b"> ${foundAlternatives[1]}</label>
+                    <label><input type="radio" name="question${questionIndex}" value="c"> ${foundAlternatives[2]}</label>
+                    <label><input type="radio" name="question${questionIndex}" value="d"> ${foundAlternatives[3]}</label>
+                    <label><input type="radio" name="question${questionIndex}" value="e"> ${foundAlternatives[4]}</label>
+                `;
+                pdfViewer.appendChild(questionDiv);
+
+                // Avançar para a próxima questão
+                i += foundAlternatives.length;
+                questionIndex++;
+            } else {
+                // Se não encontrar todas as alternativas, pular para a próxima linha
+                i++;
+            }
         } else {
             // Se não for uma questão, exibir a linha normalmente
             const lineDiv = document.createElement('div');
