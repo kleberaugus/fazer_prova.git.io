@@ -78,3 +78,64 @@
                                     currentY = y;
                                 } else {
                                     currentLine += item.str;
+                                }
+                            });
+                            if (currentLine) textLines.push(currentLine);
+
+                            // Processar as linhas para encontrar alternativas
+                            processLines(textLines);
+                        });
+
+                        // Renderizar a próxima página, se houver
+                        if (pageNum < pdf.numPages) {
+                            pageNumber++;
+                            renderPage(pageNumber);
+                        }
+                    });
+                };
+
+                // Começar a renderização pela primeira página
+                renderPage(pageNumber);
+            });
+        }
+
+        // Processar as linhas de texto para encontrar alternativas
+        function processLines(lines) {
+            let questionIndex = 0;
+            let i = 0;
+
+            while (i < lines.length) {
+                // Verificar se as próximas 5 linhas são "a)", "b)", "c)", "d)", "e)" (case-insensitive)
+                if (i + 4 < lines.length &&
+                    lines[i].trim().toLowerCase().startsWith('a)') &&
+                    lines[i + 1].trim().toLowerCase().startsWith('b)') &&
+                    lines[i + 2].trim().toLowerCase().startsWith('c)') &&
+                    lines[i + 3].trim().toLowerCase().startsWith('d)') &&
+                    lines[i + 4].trim().toLowerCase().startsWith('e)')) {
+                    // Criar um grupo de radio buttons para a questão
+                    const questionDiv = document.createElement('div');
+                    questionDiv.className = 'question';
+                    questionDiv.innerHTML = `
+                        <label><input type="radio" name="question${questionIndex}" value="a"> ${lines[i]}</label>
+                        <label><input type="radio" name="question${questionIndex}" value="b"> ${lines[i + 1]}</label>
+                        <label><input type="radio" name="question${questionIndex}" value="c"> ${lines[i + 2]}</label>
+                        <label><input type="radio" name="question${questionIndex}" value="d"> ${lines[i + 3]}</label>
+                        <label><input type="radio" name="question${questionIndex}" value="e"> ${lines[i + 4]}</label>
+                    `;
+                    pdfViewer.appendChild(questionDiv);
+
+                    // Avançar 5 linhas
+                    i += 5;
+                    questionIndex++;
+                } else {
+                    // Se não for uma questão, exibir a linha normalmente
+                    const lineDiv = document.createElement('div');
+                    lineDiv.textContent = lines[i];
+                    pdfViewer.appendChild(lineDiv);
+                    i++;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
