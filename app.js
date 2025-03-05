@@ -78,7 +78,7 @@ function loadPDF(data) {
 
 // Adicionar radio buttons dinamicamente
 function addRadioButtons() {
-    alert("entrou"));
+    alert("entrou");
     const divs = pdfViewer.querySelectorAll('div');
     let questionIndex = 0;
 
