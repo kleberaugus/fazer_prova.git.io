@@ -35,12 +35,17 @@ function loadPDF(data) {
                 const scale = 1.5;
                 const viewport = page.getViewport({ scale });
 
+                // Criar container para a página
+                const pageContainer = document.createElement('div');
+                pageContainer.className = 'page-container';
+                pdfViewer.appendChild(pageContainer);
+
                 // Criar canvas para renderização
                 const canvas = document.createElement('canvas');
                 const context = canvas.getContext('2d');
                 canvas.height = viewport.height;
                 canvas.width = viewport.width;
-                pdfViewer.appendChild(canvas);
+                pageContainer.appendChild(canvas);
 
                 // Renderizar a página
                 page.render({
@@ -52,15 +57,36 @@ function loadPDF(data) {
                 page.getTextContent().then(textContent => {
                     const textItems = textContent.items;
 
-                    // Criar divs para cada linha de texto
-                    textItems.forEach(item => {
-                        const div = document.createElement('div');
-                        div.textContent = item.str;
-                        pdfViewer.appendChild(div);
-                    });
+                    // Criar overlay para os radio buttons
+                    const overlay = document.createElement('div');
+                    overlay.className = 'radio-overlay';
+                    pageContainer.appendChild(overlay);
 
                     // Adicionar radio buttons dinamicamente
-                    addRadioButtons();
+                    textItems.forEach(item => {
+                        const text = item.str.trim();
+                        const alternatives = ['a)', 'b)', 'c)', 'd)', 'e)'];
+                        alternatives.forEach(alt => {
+                            if (text.toLowerCase().startsWith(alt.toLowerCase())) {
+                                const radio = document.createElement('input');
+                                radio.type = 'radio';
+                                radio.name = `question${pageNum}`;
+                                radio.value = alt[0];
+
+                                const label = document.createElement('label');
+                                label.appendChild(radio);
+                                label.appendChild(document.createTextNode(text));
+
+                                const container = document.createElement('div');
+                                container.className = 'radio-container';
+                                container.style.left = `${item.transform[4]}px`;
+                                container.style.top = `${viewport.height - item.transform[5]}px`;
+                                container.appendChild(label);
+
+                                overlay.appendChild(container);
+                            }
+                        });
+                    });
                 });
 
                 // Renderizar a próxima página, se houver
@@ -73,46 +99,5 @@ function loadPDF(data) {
 
         // Começar a renderização pela primeira página
         renderPage(pageNumber);
-    });
-}
-
-// Adicionar radio buttons dinamicamente
-function addRadioButtons() {
-    const divs = pdfViewer.querySelectorAll('div');
-    let questionIndex = 0;
-
-    divs.forEach(div => {
-        const text = div.textContent.trim();
-
-        // Verificar se o texto contém alternativas (a), b), c), d), e))
-        const alternatives = ['a)', 'b)', 'c)', 'd)', 'e)'];
-        alternatives.forEach((alt, index) => {
-            if (text.toLowerCase().startsWith(alt.toLowerCase())) {
-                // Criar um radio button
-                const radio = document.createElement('input');
-                radio.type = 'radio';
-                radio.name = `question${questionIndex}`;
-                radio.value = alt[0]; // Valor do radio button (a, b, c, d, e)
-
-                // Criar um label para o radio button
-                const label = document.createElement('label');
-                label.appendChild(radio);
-                label.appendChild(document.createTextNode(text));
-
-                // Criar um container para o radio button e o texto
-                const container = document.createElement('div');
-                container.className = 'radio-container';
-                container.appendChild(label);
-
-                // Substituir o conteúdo da div pelo container
-                div.innerHTML = '';
-                div.appendChild(container);
-
-                // Se for a primeira alternativa (a)), criar um novo grupo
-                if (alt.toLowerCase() === 'a)') {
-                    questionIndex++;
-                }
-            }
-        });
     });
 }
