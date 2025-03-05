@@ -28,7 +28,7 @@
             margin-right: 10px;
         }
     </style>
-    <!-- Inclua o PDF.js -->
+    <!-- Inclua o PDF.js via CDN -->
     <script src="https://mozilla.github.io/pdf.js/build/pdf.js"></script>
 </head>
 <body>
@@ -37,6 +37,11 @@
     <div id="pdf-viewer"></div>
 
     <script>
+        // Configuração do worker
+        if (typeof pdfjsLib !== 'undefined') {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.js';
+        }
+
         // Elementos da interface
         const pdfInput = document.getElementById('pdf-input');
         const pdfViewer = document.getElementById('pdf-viewer');
