@@ -78,7 +78,6 @@ function loadPDF(data) {
 
 // Adicionar radio buttons dinamicamente
 function addRadioButtons() {
-    
     const divs = pdfViewer.querySelectorAll('div');
     let questionIndex = 0;
 
@@ -89,8 +88,6 @@ function addRadioButtons() {
         const alternatives = ['a)', 'b)', 'c)', 'd)', 'e)'];
         alternatives.forEach((alt, index) => {
             if (text.toLowerCase().startsWith(alt.toLowerCase())) {
-
-                
                 // Criar um radio button
                 const radio = document.createElement('input');
                 radio.type = 'radio';
@@ -114,7 +111,6 @@ function addRadioButtons() {
                 // Se for a primeira alternativa (a)), criar um novo grupo
                 if (alt.toLowerCase() === 'a)') {
                     questionIndex++;
-                    
                 }
             }
         });
