@@ -95,7 +95,7 @@ function processLines(lines) {
         // Verificar se a linha atual começa com "a)"
         if (lines[i].trim().startsWith('a)')) {
             // Procurar as próximas alternativas (b), c), d), e))
-            const alternatives = ['a)', 'b)', 'c)', 'd)', 'e)'];
+            const alternatives = ['a)', 'b)', 'c)', 'd)', 'e)', 'A)', 'B)', 'C)', 'D)', 'E)', '(A)', '(B)', '(C)', '(D)', '(E)'];
             const foundAlternatives = [];
 
             // Verificar as próximas linhas para encontrar as alternativas
