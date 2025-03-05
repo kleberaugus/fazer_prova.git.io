@@ -101,7 +101,7 @@ function processLines(lines) {
             // Verificar as próximas linhas para encontrar as alternativas
             for (let j = i; j < lines.length; j++) {
                 const line = lines[j].trim();
-                if (alternatives.includes(line.substring(0, 2))) {
+                if (alternatives.some(alt => line.startsWith(alt))) {
                     foundAlternatives.push(line);
                     if (foundAlternatives.length === 5) break; // Todas as alternativas encontradas
                 }
