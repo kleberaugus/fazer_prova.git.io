@@ -32,15 +32,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Variável global para numerar as questões
-    let questionIndex = 1;
-
     function loadPDF(data) {
         pdfjsLib.getDocument({ data }).promise.then(pdf => {
             pdfViewer.innerHTML = ''; // Limpa o visualizador
             let pageNumber = 1;
 
-            // Função para renderizar uma página
             const renderPage = (pageNum) => {
                 pdf.getPage(pageNum).then(page => {
                     const scale = 1.5;
@@ -73,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const textItems = textContent.items;
                         const candidates = [];
 
-                        // Regex que aceita apenas "a)", "(a)", "b)", "(b)", etc.
+                        // Regex para aceitar apenas padrões "a)", "(a)", "b)", "(b)", etc.
                         const altRegex = /^(?:\([a-e]\)|[a-e]\))/i;
                         textItems.forEach(item => {
                             const text = item.str.trim();
@@ -81,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (match) {
                                 // Extrai a letra removendo parênteses e o fechamento
                                 const letter = match[0].replace(/[()]/g, '').replace(')', '').toLowerCase();
-                                // Calcula posição (ajustando para a escala e deslocamento do canvas)
+                                // Calcula posição ajustada para a escala e deslocamento
                                 const x = item.transform[4] * scale + canvasOffsetX - 21;
                                 const y = viewport.height - item.transform[5] * scale - 15;
                                 candidates.push({ letter, x, y, originalText: text });
@@ -96,48 +92,46 @@ document.addEventListener('DOMContentLoaded', () => {
                             return a.y - b.y;
                         });
 
-                        // Agrupa os candidatos em questões.
-                        // Inicia um novo grupo se o item for "a" ou se houver um salto vertical significativo
+                        // Agora, vamos definir a ordem das questões:
+                        // Sempre que encontramos uma alternativa "a" consideramos que é o início de uma nova questão.
                         const groups = [];
-                        let currentGroup = [];
-                        const yThreshold = 30; // Limiar para determinar mudança de questão
-
+                        let currentGroup = null;
                         candidates.forEach(candidate => {
-                            if (
-                                candidate.letter === 'a' ||
-                                (currentGroup.length > 0 && (candidate.y - currentGroup[currentGroup.length - 1].y > yThreshold))
-                            ) {
-                                if (currentGroup.length > 0) {
+                            if (candidate.letter === 'a') {
+                                // Inicia um novo grupo para a questão
+                                currentGroup = [candidate];
+                                groups.push(currentGroup);
+                            } else {
+                                // Se já houver um grupo corrente, adiciona o candidato a ele;
+                                // caso contrário, trata-o como início de um novo grupo.
+                                if (currentGroup) {
+                                    currentGroup.push(candidate);
+                                } else {
+                                    currentGroup = [candidate];
                                     groups.push(currentGroup);
                                 }
-                                currentGroup = [candidate];
-                            } else {
-                                currentGroup.push(candidate);
                             }
                         });
-                        if (currentGroup.length > 0) {
-                            groups.push(currentGroup);
-                        }
 
                         // Cria overlay para os radio buttons
                         const overlay = document.createElement('div');
                         overlay.className = 'radio-overlay';
                         pageContainer.appendChild(overlay);
 
-                        // Para cada grupo (questão), cria os radio buttons com o mesmo name
-                        groups.forEach(group => {
-                            const currentQuestionName = `question${questionIndex++}`;
+                        // Para cada grupo (questão) — a ordem aqui reflete a ordem de aparição dos candidatos —
+                        // cria os radio buttons com o mesmo name
+                        groups.forEach((group, index) => {
+                            const questionName = `question${index + 1}`;
                             group.forEach(candidate => {
-                                // Cria container para o radio button e posiciona-o no início do texto
+                                // Cria container para o radio button e posiciona-o no início da alternativa
                                 const container = document.createElement('div');
                                 container.className = 'radio-container';
-                                // Ajusta a posição para que o botão apareça antes do texto
-                                container.style.left = `${candidate.x - 20}px`;
+                                container.style.left = `${candidate.x - 15}px`;
                                 container.style.top = `${candidate.y}px`;
 
                                 const radio = document.createElement('input');
                                 radio.type = 'radio';
-                                radio.name = currentQuestionName;
+                                radio.name = questionName;
                                 radio.value = candidate.letter;
 
                                 container.appendChild(radio);
@@ -147,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                 });
 
-                // Renderiza a próxima página (se existir)
+                // Renderiza a próxima página, se existir
                 if (pageNum < pdf.numPages) {
                     renderPage(pageNum + 1);
                 }
@@ -190,4 +184,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById("btn_resultado").addEventListener("click", pegar_valores);
 });
+
 
