@@ -176,8 +176,25 @@ function processarTexto() {
                 letras.push(...tempLetras.split(''));
             }
 
-    alert(numeros)
-    alert(letras)
+
         }
+
+
+function pegarValores() {
+    let radios = document.querySelectorAll('input[type="radio"]');
+    let grupos = {};
+    
+    radios.forEach(radio => {
+        if (!grupos[radio.name]) {
+            grupos[radio.name] = "";
+        }
+        if (radio.checked) {
+            grupos[radio.name] = radio.value;
+        }
+    });
+
+    let valores = Object.values(grupos);
+    alert(valores);
+}
 
 
