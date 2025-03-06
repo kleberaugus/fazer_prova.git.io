@@ -74,7 +74,7 @@ function loadPDF(data) {
                     textItems.forEach(item => {
                         const text = item.str.trim();
 
-                        const alternatives = ['a)', 'b)', 'c)', 'd)', 'e)'];
+                        const alternatives = ['a)', 'b)', 'c)', 'd)', 'e)', '(a)', '(b)', '(c)', '(d)', '(e)'];
                         alternatives.forEach(alt => {
                             if (text.toLowerCase().startsWith(alt.toLowerCase())) {
                                 // Calcular a posição do texto no canvas (com escala)
@@ -98,7 +98,7 @@ function loadPDF(data) {
                                 overlay.appendChild(container);
 
                                 // Incrementar o questionIndex APÓS criar o radio button
-                                if (alt.toLowerCase() === 'e)') {                                    
+                                if (alt.toLowerCase() === 'e)' || alt.toLowerCase() === '(e)')) {                                    
                                     questionIndex++;
                                 }
 
