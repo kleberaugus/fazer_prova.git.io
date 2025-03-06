@@ -121,10 +121,6 @@ function loadPDF(data) {
 
  const input = document.getElementById("colargabarito");
 
-  input.addEventListener("input", function () {
-    processarTexto(); 
-      
-  })
 
 function processarTexto() {
             let texto = document.getElementById('colarpdf').value;
