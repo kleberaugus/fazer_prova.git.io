@@ -4,8 +4,6 @@ import * as pdfjsLib from './pdfjs/pdf.mjs';
 // Configuração do worker (também no topo)
 pdfjsLib.GlobalWorkerOptions.workerSrc = './pdfjs/pdf.worker.mjs';
 
-            let questionIndex = 1;
-
 // Função para coletar valores dos radios (fora do DOMContentLoaded)
 window.pegar_valores = function() {
     const grupos = {};
@@ -42,12 +40,11 @@ document.addEventListener('DOMContentLoaded', () => {
         pdfjsLib.getDocument({ data }).promise.then(pdf => {
             pdfViewer.innerHTML = ''; // Limpar o visualizador
             let pageNumber = 1;
-            // Variável para rastrear o número da questão
-
+            let questionIndex = 1; // Reinicializar questionIndex aqui
 
             // Função para renderizar uma página
             const renderPage = (pageNum) => {
-                        console.log(questionIndex)
+                console.log(questionIndex);
                 pdf.getPage(pageNum).then(page => {
                     const scale = 1.5;
                     const viewport = page.getViewport({ scale });
@@ -82,8 +79,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         const overlay = document.createElement('div');
                         overlay.className = 'radio-overlay';
                         pageContainer.appendChild(overlay);
-
-
 
                         // Adicionar radio buttons dinamicamente
                         textItems.forEach(item => {
