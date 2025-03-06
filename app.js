@@ -66,6 +66,9 @@ function loadPDF(data) {
                     overlay.className = 'radio-overlay';
                     pageContainer.appendChild(overlay);
 
+                    // Variável para rastrear o número da questão
+                    let questionIndex = 0;
+
                     // Adicionar radio buttons dinamicamente
                     textItems.forEach(item => {
                         const text = item.str.trim();
@@ -73,13 +76,13 @@ function loadPDF(data) {
                         alternatives.forEach(alt => {
                             if (text.toLowerCase().startsWith(alt.toLowerCase())) {
                                 // Calcular a posição do texto no canvas (com escala)
-                                const x = item.transform[4] * scale + canvasOffsetX-21; // Ajuste para a escala e deslocamento horizontal
-                                const y = (viewport.height - item.transform[5] * scale-15); // Inverter o eixo Y, ajustar para a escala e subir um pouco
+                                const x = item.transform[4] * scale + canvasOffsetX - 21; // Ajuste para a escala e deslocamento horizontal
+                                const y = (viewport.height - item.transform[5] * scale - 15); // Inverter o eixo Y, ajustar para a escala e subir um pouco
 
                                 // Criar radio button
                                 const radio = document.createElement('input');
                                 radio.type = 'radio';
-                                radio.name = `question${pageNum}`;
+                                radio.name = `question${questionIndex}`; // Nome único para cada questão
                                 radio.value = alt[0];
 
                                 // Criar container para o radio button
@@ -91,6 +94,11 @@ function loadPDF(data) {
 
                                 // Adicionar ao overlay
                                 overlay.appendChild(container);
+
+                                // Se for a primeira alternativa (a)), incrementar o índice da questão
+                                if (alt.toLowerCase() === 'a)') {
+                                    questionIndex++;
+                                }
                             }
                         });
                     });
