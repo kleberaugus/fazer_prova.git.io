@@ -120,7 +120,7 @@ function loadPDF(data) {
 }
 
  const input = document.getElementById("colargabarito");
-document.getElementById("btn_resultado").addEventListener("click", pegar_valores);
+document.getElementById("btn_resultado").addEventListener("click", pegar_valores());
 
 
   input.addEventListener("input", function () {
