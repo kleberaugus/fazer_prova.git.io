@@ -9,7 +9,7 @@ const pdfInput = document.getElementById('pdf-input');
 const pdfViewer = document.getElementById('pdf-viewer');
 
 // Quando o usuário seleciona um PDF
-pdfInput.addEventListener('change', function (event) {
+ pdfInput.addEventListener('change', function (event) {
     const file = event.target.files[0];
     if (file && file.type === 'application/pdf') {
         const fileReader = new FileReader();
