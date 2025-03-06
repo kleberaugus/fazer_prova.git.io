@@ -68,6 +68,7 @@ function loadPDF(data) {
 
                     // Variável para rastrear o número da questão
                     let questionIndex = 0;
+                    let contador = 0;
 
                     // Adicionar radio buttons dinamicamente
                     textItems.forEach(item => {
@@ -97,10 +98,10 @@ function loadPDF(data) {
                                 overlay.appendChild(container);
 
                                 // Incrementar o questionIndex APÓS criar o radio button
-                                if (alt.toLowerCase() === 'e)') {
+
+                            }                                if (alt.toLowerCase() === 'e)') {                                    
                                     questionIndex++;
                                 }
-                            }
                         });
                     });
                 });
