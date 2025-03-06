@@ -73,14 +73,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         const textItems = textContent.items;
                         const candidates = [];
 
-                        // Regex para identificar alternativas: "a)", "(a)", etc.
-                        const altRegex = /^(\(?[a-e]\)?)/i;
+                        // Regex que aceita apenas "a)", "(a)", "b)", "(b)", etc.
+                        const altRegex = /^(?:\([a-e]\)|[a-e]\))/i;
                         textItems.forEach(item => {
                             const text = item.str.trim();
                             const match = text.match(altRegex);
                             if (match) {
-                                // Extrai a letra removendo parênteses
-                                const letter = match[1].replace(/[()]/g, '').toLowerCase();
+                                // Extrai a letra removendo parênteses e o fechamento
+                                const letter = match[0].replace(/[()]/g, '').replace(')', '').toLowerCase();
                                 // Calcula posição (ajustando para a escala e deslocamento do canvas)
                                 const x = item.transform[4] * scale + canvasOffsetX - 21;
                                 const y = viewport.height - item.transform[5] * scale - 15;
@@ -97,11 +97,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         });
 
                         // Agrupa os candidatos em questões.
-                        // Se o item for "a" ou se a distância vertical do item atual em relação
-                        // ao anterior for maior que um limiar (ex.: 30px), inicia um novo grupo.
+                        // Inicia um novo grupo se o item for "a" ou se houver um salto vertical significativo
                         const groups = [];
                         let currentGroup = [];
-                        const yThreshold = 30; // Pode ser ajustado conforme necessário
+                        const yThreshold = 30; // Limiar para determinar mudança de questão
 
                         candidates.forEach(candidate => {
                             if (
@@ -129,17 +128,19 @@ document.addEventListener('DOMContentLoaded', () => {
                         groups.forEach(group => {
                             const currentQuestionName = `question${questionIndex++}`;
                             group.forEach(candidate => {
+                                // Cria container para o radio button e posiciona-o no início do texto
+                                const container = document.createElement('div');
+                                container.className = 'radio-container';
+                                // Ajusta a posição para que o botão apareça antes do texto
+                                container.style.left = `${candidate.x - 20}px`;
+                                container.style.top = `${candidate.y}px`;
+
                                 const radio = document.createElement('input');
                                 radio.type = 'radio';
                                 radio.name = currentQuestionName;
                                 radio.value = candidate.letter;
 
-                                const container = document.createElement('div');
-                                container.className = 'radio-container';
-                                container.style.left = `${candidate.x}px`;
-                                container.style.top = `${candidate.y}px`;
                                 container.appendChild(radio);
-
                                 overlay.appendChild(container);
                             });
                         });
@@ -189,3 +190,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById("btn_resultado").addEventListener("click", pegar_valores);
 });
+
