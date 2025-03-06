@@ -179,3 +179,5 @@ function processarTexto() {
     alert(numeros)
 
         }
+
+alert(letras)
