@@ -72,6 +72,13 @@ function loadPDF(data) {
                     // Adicionar radio buttons dinamicamente
                     textItems.forEach(item => {
                         const text = item.str.trim();
+
+                        // Verificar se a linha começa com "a)" (sem diferenciar maiúsculas e minúsculas)
+                        if (text.toLowerCase().startsWith('a)')) {
+                            // Nova questão encontrada
+                            questionIndex++;
+                        }
+
                         const alternatives = ['a)', 'b)', 'c)', 'd)', 'e)'];
                         alternatives.forEach(alt => {
                             if (text.toLowerCase().startsWith(alt.toLowerCase())) {
@@ -94,11 +101,6 @@ function loadPDF(data) {
 
                                 // Adicionar ao overlay
                                 overlay.appendChild(container);
-
-                                // Se for a primeira alternativa (a)), incrementar o índice da questão
-                                if (alt.toLowerCase() === 'a)') {
-                                    questionIndex++;
-                                }
                             }
                         });
                     });
