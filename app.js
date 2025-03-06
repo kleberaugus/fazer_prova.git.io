@@ -1,5 +1,5 @@
 // Importe o PDF.js
-import * as pdfjsLib from './pdfjs/pdf.mjs';
+<script type="module"> import pdfjsDist from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/+esm' </script>
 
 // Configuração do worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = './pdfjs/pdf.worker.mjs';
