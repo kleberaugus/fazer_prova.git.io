@@ -40,6 +40,8 @@ document.addEventListener('DOMContentLoaded', () => {
         pdfjsLib.getDocument({ data }).promise.then(pdf => {
             pdfViewer.innerHTML = ''; // Limpar o visualizador
             let pageNumber = 1;
+            // Variável para rastrear o número da questão
+            let questionIndex = 1;
 
             // Função para renderizar uma página
             const renderPage = (pageNum) => {
@@ -78,8 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         overlay.className = 'radio-overlay';
                         pageContainer.appendChild(overlay);
 
-                        // Variável para rastrear o número da questão
-                        let questionIndex = 1;
+
 
                         // Adicionar radio buttons dinamicamente
                         textItems.forEach(item => {
