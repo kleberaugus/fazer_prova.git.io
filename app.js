@@ -82,17 +82,12 @@ function loadPDF(data) {
                                 radio.name = `question${pageNum}`;
                                 radio.value = alt[0];
 
-                                // Criar label para o radio button
-                                const label = document.createElement('label');
-                                label.appendChild(radio);
-                                label.appendChild(document.createTextNode(text));
-
-                                // Criar container para o radio button e o texto
+                                // Criar container para o radio button
                                 const container = document.createElement('div');
                                 container.className = 'radio-container';
                                 container.style.left = `${x}px`;
                                 container.style.top = `${y}px`;
-                                container.appendChild(label);
+                                container.appendChild(radio);
 
                                 // Adicionar ao overlay
                                 overlay.appendChild(container);
