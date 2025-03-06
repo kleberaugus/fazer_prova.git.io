@@ -99,7 +99,7 @@ function loadPDF(data) {
 
                                 // Incrementar o questionIndex APÓS criar o radio button
 
-                            }                                if (alt.toLowerCase() === 'e)' || alt.toLowerCase() === '(e)') {                                    
+                            }                                if (alt.toLowerCase() === 'e)') {                                    
                                     questionIndex++;
                                 }
                         });
