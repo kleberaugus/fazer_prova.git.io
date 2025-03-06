@@ -120,7 +120,7 @@ function loadPDF(data) {
 }
 
 function processarTexto() {
-            let texto = document.getElementById('inputTexto').value;
+            let texto = document.getElementById('colarpdf').value;
             let numeros = [];
             let letras = [];
 
