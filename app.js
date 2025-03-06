@@ -47,6 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Função para renderizar uma página
             const renderPage = (pageNum) => {
+                        console.log(questionIndex)
                 pdf.getPage(pageNum).then(page => {
                     const scale = 1.5;
                     const viewport = page.getViewport({ scale });
