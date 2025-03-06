@@ -44,7 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Função para renderizar uma página
             const renderPage = (pageNum) => {
-                console.log(questionIndex);
                 pdf.getPage(pageNum).then(page => {
                     const scale = 1.5;
                     const viewport = page.getViewport({ scale });
@@ -91,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     // Cálculo da posição (ajustado para escala)
                                     const x = item.transform[4] * scale + canvasOffsetX - 21;
                                     const y = viewport.height - item.transform[5] * scale - 15;
-
+                console.log(questionIndex);
                                     // Criar radio button
                                     const radio = document.createElement('input');
                                     radio.type = 'radio';
