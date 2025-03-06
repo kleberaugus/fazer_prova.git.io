@@ -32,7 +32,7 @@ function loadPDF(data) {
         // Função para renderizar uma página
         const renderPage = (pageNum) => {
             pdf.getPage(pageNum).then(page => {
-                const scale = 1.5;
+                const scale = 1.5; // Escala usada para renderizar o PDF
                 const viewport = page.getViewport({ scale });
 
                 // Criar container para a página
@@ -68,9 +68,9 @@ function loadPDF(data) {
                         const alternatives = ['a)', 'b)', 'c)', 'd)', 'e)'];
                         alternatives.forEach(alt => {
                             if (text.toLowerCase().startsWith(alt.toLowerCase())) {
-                                // Calcular a posição do texto no canvas
-                                const x = item.transform[4];
-                                const y = viewport.height - item.transform[5]; // Inverter o eixo Y
+                                // Calcular a posição do texto no canvas (com escala)
+                                const x = item.transform[4] * scale; // Ajuste para a escala
+                                const y = (viewport.height - item.transform[5] * scale); // Inverter o eixo Y e ajustar para a escala
 
                                 // Criar radio button
                                 const radio = document.createElement('input');
