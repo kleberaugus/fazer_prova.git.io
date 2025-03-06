@@ -98,10 +98,11 @@ function loadPDF(data) {
                                 overlay.appendChild(container);
 
                                 // Incrementar o questionIndex APÓS criar o radio button
-
-                            }                                if (alt.toLowerCase() === 'e)') {                                    
+                                if (alt.toLowerCase() === 'e)') {                                    
                                     questionIndex++;
                                 }
+
+                            } 
                         });
                     });
                 });
