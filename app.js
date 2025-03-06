@@ -9,7 +9,7 @@ const pdfInput = document.getElementById('pdf-input');
 const pdfViewer = document.getElementById('pdf-viewer');
 
 // Quando o usuário seleciona um PDF
- pdfInput.addEventListener('change', function (event) {
+pdfInput.addEventListener('change', function (event) {
     const file = event.target.files[0];
     if (file && file.type === 'application/pdf') {
         const fileReader = new FileReader();
@@ -119,72 +119,65 @@ function loadPDF(data) {
     });
 }
 
- const input = document.getElementById("colargabarito");
-document.getElementById("btn_resultado").addEventListener("click", pegar_valores());
+const input = document.getElementById("colargabarito");
+document.getElementById("btn_resultado").addEventListener("click", pegar_valores);
 
-
-  input.addEventListener("input", function () {
-
+input.addEventListener("input", function () {
     processarTexto();
-      
-
-  });
+});
 
 function processarTexto() {
-            let texto = document.getElementById('colargabarito').value;
-            let numeros = [];
-            let letras = [];
+    let texto = document.getElementById('colargabarito').value;
+    let numeros = [];
+    let letras = [];
 
-            let i = 0;
-            let tempNumero = '';
-            let tempLetras = '';
-//alert(texto)
-            // Função para processar o texto
-            while (i < texto.length) {
-                let char = texto[i];
+    let i = 0;
+    let tempNumero = '';
+    let tempLetras = '';
 
-                // Se for um número, acumulamos no tempNumero
-                if (/\d/.test(char)) {
-                    tempNumero += char;
-                } else if (/[a-eA-E]/.test(char)) {
-                    // Se for uma letra entre a-e (considerando maiúsculas e minúsculas)
-                    tempLetras += char.toLowerCase();
-                    
-                } else {
-                    // Quando encontramos um caractere que não é número nem letra
-                    if (tempNumero !== '') {
-                        // Remover zeros à esquerda do número
-                        let numeroFinal = parseInt(tempNumero, 10);
-                        numeros.push(numeroFinal);
-                        tempNumero = ''; // Limpar temporário para o próximo número
-                    }
-                    if (tempLetras !== '') {
-                        // Adicionar as letras ao array de letras
-                        letras.push(...tempLetras.split(''));
-                        tempLetras = ''; // Limpar letras para o próximo conjunto
-                    }
-                }
+    // Função para processar o texto
+    while (i < texto.length) {
+        let char = texto[i];
 
-                i++;
-            }
-
-            // Verificar se restaram números ou letras no final
+        // Se for um número, acumulamos no tempNumero
+        if (/\d/.test(char)) {
+            tempNumero += char;
+        } else if (/[a-eA-E]/.test(char)) {
+            // Se for uma letra entre a-e (considerando maiúsculas e minúsculas)
+            tempLetras += char.toLowerCase();
+        } else {
+            // Quando encontramos um caractere que não é número nem letra
             if (tempNumero !== '') {
+                // Remover zeros à esquerda do número
                 let numeroFinal = parseInt(tempNumero, 10);
                 numeros.push(numeroFinal);
+                tempNumero = ''; // Limpar temporário para o próximo número
             }
             if (tempLetras !== '') {
+                // Adicionar as letras ao array de letras
                 letras.push(...tempLetras.split(''));
+                tempLetras = ''; // Limpar letras para o próximo conjunto
             }
-
-
         }
 
+        i++;
+    }
 
+    // Verificar se restaram números ou letras no final
+    if (tempNumero !== '') {
+        let numeroFinal = parseInt(tempNumero, 10);
+        numeros.push(numeroFinal);
+    }
+    if (tempLetras !== '') {
+        letras.push(...tempLetras.split(''));
+    }
+}
+
+// Definir a função globalmente
 window.pegar_valores = function pegar_valores() {
     let radios = document.querySelectorAll('input[type="radio"]');
     let grupos = {};
-    
+
     radios.forEach(radio => {
         if (!grupos[radio.name]) {
             grupos[radio.name] = "";
@@ -196,6 +189,5 @@ window.pegar_valores = function pegar_valores() {
 
     let valores = Object.values(grupos);
     alert(valores);
-}
-
+};
 
