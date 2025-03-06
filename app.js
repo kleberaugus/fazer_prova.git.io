@@ -173,6 +173,6 @@ function processarTexto() {
             }
 
             // Atualizar a interface com os resultados
-            console.log(JSON.stringify(numeros));
-            console.log(JSON.stringify(letras));
+            //console.log(JSON.stringify(numeros));
+           // console.log(JSON.stringify(letras));
         }
