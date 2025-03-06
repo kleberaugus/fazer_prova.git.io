@@ -122,8 +122,10 @@ function loadPDF(data) {
  const input = document.getElementById("colargabarito");
 
 
+
+
 function processarTexto() {
-            let texto = document.getElementById('colarpdf').value;
+            let texto = document.getElementById('colargabarito').value;
             let numeros = [];
             let letras = [];
 
