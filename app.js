@@ -177,7 +177,7 @@ function processarTexto() {
             }
 
     alert(numeros)
-alert(letras)
+    alert(letras)
         }
 
 
