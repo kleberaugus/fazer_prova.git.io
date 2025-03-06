@@ -1,120 +1,54 @@
-// Importe o PDF.js
-import * as pdfjsLib from './pdfjs/pdf.mjs';
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leitor de PDF com Radio Buttons</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #pdf-viewer {
+            width: 100%;
+            height: 80vh;
+            border: 1px solid #ccc;
+            overflow-y: auto;
+            padding: 10px;
+            background: #f9f9f9;
+            position: relative;
+        }
+        .page-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .page-container canvas {
+            display: block;
+            margin: 0 auto;
+        }
+        .radio-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .radio-container {
+            position: absolute;
+            display: flex;
+            align-items: center;
+        }
+        .radio-container input[type="radio"] {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Leitor de PDF com Radio Buttons</h1>
+    <input type="file" id="pdf-input" accept="application/pdf">
+    <div id="pdf-viewer"></div>
 
-// Configuração do worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = './pdfjs/pdf.worker.mjs';
-
-// Elementos da interface
-const pdfInput = document.getElementById('pdf-input');
-const pdfViewer = document.getElementById('pdf-viewer');
-
-// Quando o usuário seleciona um PDF
-pdfInput.addEventListener('change', function (event) {
-    const file = event.target.files[0];
-    if (file && file.type === 'application/pdf') {
-        const fileReader = new FileReader();
-        fileReader.onload = function () {
-            const typedArray = new Uint8Array(this.result);
-            loadPDF(typedArray);
-        };
-        fileReader.readAsArrayBuffer(file);
-    } else {
-        alert('Por favor, selecione um arquivo PDF válido.');
-    }
-});
-
-// Carregar o PDF
-function loadPDF(data) {
-    pdfjsLib.getDocument({ data }).promise.then(pdf => {
-        pdfViewer.innerHTML = ''; // Limpar o visualizador
-        let pageNumber = 1;
-
-        // Função para renderizar uma página
-        const renderPage = (pageNum) => {
-            pdf.getPage(pageNum).then(page => {
-                const scale = 1.5; // Escala usada para renderizar o PDF
-                const viewport = page.getViewport({ scale });
-
-                // Criar container para a página
-                const pageContainer = document.createElement('div');
-                pageContainer.className = 'page-container';
-                pdfViewer.appendChild(pageContainer);
-
-                // Criar canvas para renderização
-                const canvas = document.createElement('canvas');
-                const context = canvas.getContext('2d');
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-                pageContainer.appendChild(canvas);
-
-                // Centralizar o canvas horizontalmente
-                const canvasOffsetX = (pdfViewer.clientWidth - canvas.width) / 2;
-                canvas.style.marginLeft = `${canvasOffsetX}px`;
-
-                // Renderizar a página
-                page.render({
-                    canvasContext: context,
-                    viewport: viewport
-                });
-
-                // Extrair o texto da página
-                page.getTextContent().then(textContent => {
-                    const textItems = textContent.items;
-
-                    // Criar overlay para os radio buttons
-                    const overlay = document.createElement('div');
-                    overlay.className = 'radio-overlay';
-                    pageContainer.appendChild(overlay);
-
-                    // Variável para rastrear o número da questão
-                    let questionIndex = 0;
-                    let contador = 0;
-
-                    // Adicionar radio buttons dinamicamente
-                    textItems.forEach(item => {
-                        const text = item.str.trim();
-
-                        const alternatives = ['a)', 'b)', 'c)', 'd)', 'e)'];
-                        alternatives.forEach(alt => {
-                            if (text.toLowerCase().startsWith(alt.toLowerCase())) {
-                                // Calcular a posição do texto no canvas (com escala)
-                                const x = item.transform[4] * scale + canvasOffsetX - 21; // Ajuste para a escala e deslocamento horizontal
-                                const y = (viewport.height - item.transform[5] * scale - 15); // Inverter o eixo Y, ajustar para a escala e subir um pouco
-
-                                // Criar radio button
-                                const radio = document.createElement('input');
-                                radio.type = 'radio';
-                                radio.name = `question${questionIndex}`; // Nome único para cada questão
-                                radio.value = alt[0];
-
-                                // Criar container para o radio button
-                                const container = document.createElement('div');
-                                container.className = 'radio-container';
-                                container.style.left = `${x}px`;
-                                container.style.top = `${y}px`;
-                                container.appendChild(radio);
-
-                                // Adicionar ao overlay
-                                overlay.appendChild(container);
-
-                                // Incrementar o questionIndex APÓS criar o radio button
-
-                            }if (alt.toLowerCase() === 'e)') {                                    
-                                    questionIndex++;
-                                }
-                        });
-                    });
-                });
-
-                // Renderizar a próxima página, se houver
-                if (pageNum < pdf.numPages) {
-                    pageNumber++;
-                    renderPage(pageNumber);
-                }
-            });
-        };
-
-        // Começar a renderização pela primeira página
-        renderPage(pageNumber);
-    });
-}
+    <!-- Carregue o script como um módulo -->
+    <script type="module" src="app.js"></script>
+</body>
+</html>
