@@ -163,7 +163,7 @@ function processarTexto() {
                         tempLetras = ''; // Limpar letras para o próximo conjunto
                     }
                 }
-console.log(numeros)
+alert(numeros)
                 i++;
             }
 
