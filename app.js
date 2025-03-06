@@ -73,8 +73,6 @@ function loadPDF(data) {
                     textItems.forEach(item => {
                         const text = item.str.trim();
 
-
-
                         const alternatives = ['a)', 'b)', 'c)', 'd)', 'e)'];
                         alternatives.forEach(alt => {
                             if (text.toLowerCase().startsWith(alt.toLowerCase())) {
@@ -98,11 +96,10 @@ function loadPDF(data) {
                                 // Adicionar ao overlay
                                 overlay.appendChild(container);
 
-                                                        // Verificar se a linha começa com "a)" (sem diferenciar maiúsculas e minúsculas)
-                        if (text.toLowerCase().startsWith('e)')) {
-                            // Nova questão encontrada
-                            questionIndex++;
-                        }
+                                // Incrementar o questionIndex APÓS criar o radio button
+                                if (alt.toLowerCase() === 'e)') {
+                                    questionIndex++;
+                                }
                             }
                         });
                     });
