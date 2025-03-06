@@ -119,7 +119,7 @@ function loadPDF(data) {
     });
 }
 
- const input = document.getElementById("colar");
+ const input = document.getElementById("colargabarito");
 
   input.addEventListener("input", function () {
 
@@ -173,6 +173,6 @@ function processarTexto() {
             }
 
             // Atualizar a interface com os resultados
-            document.getElementById('arrayNumeros').textContent = JSON.stringify(numeros);
-            document.getElementById('arrayLetras').textContent = JSON.stringify(letras);
+            console.log(JSON.stringify(numeros));
+            console.log(JSON.stringify(letras));
         }
