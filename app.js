@@ -67,7 +67,7 @@ function loadPDF(data) {
                     pageContainer.appendChild(overlay);
 
                     // Variável para rastrear o número da questão
-                    let questionIndex = 0;
+                    let questionIndex = 1;
 
                     // Adicionar radio buttons dinamicamente
                     textItems.forEach(item => {
