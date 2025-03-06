@@ -70,7 +70,7 @@ function loadPDF(data) {
                             if (text.toLowerCase().startsWith(alt.toLowerCase())) {
                                 // Calcular a posição do texto no canvas (com escala)
                                 const x = item.transform[4] * scale+1500; // Ajuste para a escala
-                                const y = (viewport.height - item.transform[5] * scale-600); // Inverter o eixo Y e ajustar para a escala
+                                const y = (viewport.height - item.transform[5] * scale-1000); // Inverter o eixo Y e ajustar para a escala
 
                                 // Criar radio button
                                 const radio = document.createElement('input');
