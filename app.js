@@ -1,4 +1,4 @@
-vv// Importe o PDF.js
+// Importe o PDF.js
 import * as pdfjsLib from './pdfjs/pdf.mjs';
 
 // Configuração do worker
