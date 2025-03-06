@@ -28,10 +28,7 @@ function loadPDF(data) {
     pdfjsLib.getDocument({ data }).promise.then(pdf => {
         pdfViewer.innerHTML = ''; // Limpar o visualizador
         let pageNumber = 1;
-
-        
-                    // Variável para rastrear o número da questão
-                    let questionIndex = 1;
+        let questionIndex = 1;
 
         // Função para renderizar uma página
         const renderPage = (pageNum) => {
