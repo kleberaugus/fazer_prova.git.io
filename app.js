@@ -148,7 +148,7 @@ function processarTexto() {
                 } else if (/[a-eA-E]/.test(char)) {
                     // Se for uma letra entre a-e (considerando maiúsculas e minúsculas)
                     tempLetras += char.toLowerCase();
-                    alert(tempLetras)
+                    
                 } else {
                     // Quando encontramos um caractere que não é número nem letra
                     if (tempNumero !== '') {
@@ -163,7 +163,7 @@ function processarTexto() {
                         tempLetras = ''; // Limpar letras para o próximo conjunto
                     }
                 }
-
+console.log(numeros[])
                 i++;
             }
 
