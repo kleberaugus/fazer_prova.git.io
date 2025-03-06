@@ -137,7 +137,7 @@ function processarTexto() {
             let i = 0;
             let tempNumero = '';
             let tempLetras = '';
-
+alert(texto)
             // Função para processar o texto
             while (i < texto.length) {
                 let char = texto[i];
@@ -175,6 +175,6 @@ function processarTexto() {
                 letras.push(...tempLetras.split(''));
             }
 
-    console.log(numeros)
+    
 
         }
