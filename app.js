@@ -180,7 +180,7 @@ function processarTexto() {
         }
 
 
-function pegar_valores() {
+window.pegar_valores = function pegar_valores() {
     let radios = document.querySelectorAll('input[type="radio"]');
     let grupos = {};
     
