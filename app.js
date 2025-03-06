@@ -119,6 +119,13 @@ function loadPDF(data) {
     });
 }
 
+ const input = document.getElementById("colar");
+
+  input.addEventListener("input", function () {
+
+      
+  }
+
 function processarTexto() {
             let texto = document.getElementById('colarpdf').value;
             let numeros = [];
