@@ -126,8 +126,7 @@ function loadPDF(data) {
 
     processarTexto();
       
-            alert(tempNumero[0])
-           alert(tempLetras[0])
+
   });
 
 function processarTexto() {
@@ -175,5 +174,7 @@ function processarTexto() {
             if (tempLetras !== '') {
                 letras.push(...tempLetras.split(''));
             }
+
+    console.log(numeros)
 
         }
