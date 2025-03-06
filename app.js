@@ -68,12 +68,12 @@ function loadPDF(data) {
 
                     // Variável para rastrear o número da questão
                     let questionIndex = 0;
-                    let contador = 0;
 
                     // Adicionar radio buttons dinamicamente
                     textItems.forEach(item => {
                         const text = item.str.trim();
 
+                        // Verificar se a linha começa com "a)", "b)", etc. ou "(a)", "(b)", etc.
                         const alternatives = ['a)', 'b)', 'c)', 'd)', 'e)', '(a)', '(b)', '(c)', '(d)', '(e)'];
                         alternatives.forEach(alt => {
                             if (text.toLowerCase().startsWith(alt.toLowerCase())) {
@@ -85,7 +85,7 @@ function loadPDF(data) {
                                 const radio = document.createElement('input');
                                 radio.type = 'radio';
                                 radio.name = `question${questionIndex}`; // Nome único para cada questão
-                                radio.value = alt[0];
+                                radio.value = alt.replace(/[()]/g, ''); // Remover parênteses do valor
 
                                 // Criar container para o radio button
                                 const container = document.createElement('div');
@@ -98,11 +98,10 @@ function loadPDF(data) {
                                 overlay.appendChild(container);
 
                                 // Incrementar o questionIndex APÓS criar o radio button
-                                if (alt.toLowerCase() === 'e)' || alt.toLowerCase() === '(e)')) {                                    
+                                if (alt.toLowerCase() === 'e)' || alt.toLowerCase() === '(e)') {
                                     questionIndex++;
                                 }
-
-                            } 
+                            }
                         });
                     });
                 });
