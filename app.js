@@ -74,7 +74,7 @@ function loadPDF(data) {
                         const text = item.str.trim();
 
                         // Verificar se a linha começa com "a)" (sem diferenciar maiúsculas e minúsculas)
-                        if (text.toLowerCase().startsWith('a)')) {
+                        if (text.toLowerCase().startsWith('e)')) {
                             // Nova questão encontrada
                             questionIndex++;
                         }
