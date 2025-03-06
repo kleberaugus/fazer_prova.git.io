@@ -74,7 +74,7 @@ function loadPDF(data) {
                     textItems.forEach(item => {
                         const text = item.str.trim();
 
-                        const alternatives = ['a)', 'b)', 'c)', 'd)', 'e)', '(a)', '(b)', '(c)', '(d)', '(e)'];
+                        const alternatives = ['a)', 'b)', 'c)', 'd)', 'e)'];
                         alternatives.forEach(alt => {
                             if (text.toLowerCase().startsWith(alt.toLowerCase())) {
                                 // Calcular a posição do texto no canvas (com escala)
