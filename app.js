@@ -4,6 +4,16 @@ import * as pdfjsLib from './pdfjs/pdf.mjs';
 // Configuração do worker (também no topo)
 pdfjsLib.GlobalWorkerOptions.workerSrc = './pdfjs/pdf.worker.mjs';
 
+// Função para coletar valores dos radios (fora do DOMContentLoaded)
+window.pegar_valores = function() {
+    const grupos = {};
+    document.querySelectorAll('input[type="radio"]').forEach(radio => {
+        if (!grupos[radio.name]) grupos[radio.name] = "";
+        if (radio.checked) grupos[radio.name] = radio.value;
+    });
+    alert(Object.values(grupos));
+};
+
 // Aguarde o DOM estar pronto
 document.addEventListener('DOMContentLoaded', () => {
     // Elementos da interface
@@ -156,14 +166,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Botão de resultado
     document.getElementById("btn_resultado").addEventListener("click", pegar_valores);
-
-    // Função para coletar valores dos radios
-    window.pegar_valores = function() {
-        const grupos = {};
-        document.querySelectorAll('input[type="radio"]').forEach(radio => {
-            if (!grupos[radio.name]) grupos[radio.name] = "";
-            if (radio.checked) grupos[radio.name] = radio.value;
-        });
-        alert(Object.values(grupos));
-    };
 });
