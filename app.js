@@ -29,6 +29,10 @@ function loadPDF(data) {
         pdfViewer.innerHTML = ''; // Limpar o visualizador
         let pageNumber = 1;
 
+        
+                    // Variável para rastrear o número da questão
+                    let questionIndex = 1;
+
         // Função para renderizar uma página
         const renderPage = (pageNum) => {
             pdf.getPage(pageNum).then(page => {
@@ -66,8 +70,6 @@ function loadPDF(data) {
                     overlay.className = 'radio-overlay';
                     pageContainer.appendChild(overlay);
 
-                    // Variável para rastrear o número da questão
-                    let questionIndex = 1;
 
                     // Adicionar radio buttons dinamicamente
                     textItems.forEach(item => {
