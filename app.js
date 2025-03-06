@@ -1,10 +1,11 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // Importe o PDF.js
-    import * as pdfjsLib from './pdfjs/pdf.mjs';
+// Importe o PDF.js no topo do arquivo (nível superior do módulo)
+import * as pdfjsLib from './pdfjs/pdf.mjs';
 
-    // Configuração do worker
-    pdfjsLib.GlobalWorkerOptions.workerSrc = './pdfjs/pdf.worker.mjs';
+// Configuração do worker (também no topo)
+pdfjsLib.GlobalWorkerOptions.workerSrc = './pdfjs/pdf.worker.mjs';
 
+// Aguarde o DOM estar pronto
+document.addEventListener('DOMContentLoaded', () => {
     // Elementos da interface
     const pdfInput = document.getElementById('pdf-input');
     const pdfViewer = document.getElementById('pdf-viewer');
@@ -24,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Carregar o PDF
+    // Função para carregar o PDF
     function loadPDF(data) {
         pdfjsLib.getDocument({ data }).promise.then(pdf => {
             pdfViewer.innerHTML = ''; // Limpar o visualizador
@@ -33,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Função para renderizar uma página
             const renderPage = (pageNum) => {
                 pdf.getPage(pageNum).then(page => {
-                    const scale = 1.5; // Escala usada para renderizar o PDF
+                    const scale = 1.5;
                     const viewport = page.getViewport({ scale });
 
                     // Criar container para a página
@@ -74,31 +75,30 @@ document.addEventListener('DOMContentLoaded', function() {
                         textItems.forEach(item => {
                             const text = item.str.trim();
 
-                            // Verificar se a linha começa com "a)", "b)", etc. ou "(a)", "(b)", etc.
+                            // Verificar se a linha começa com "a)", "b)", etc.
                             const alternatives = ['a)', 'b)', 'c)', 'd)', 'e)', '(a)', '(b)', '(c)', '(d)', '(e)'];
                             alternatives.forEach(alt => {
                                 if (text.toLowerCase().startsWith(alt.toLowerCase())) {
-                                    // Calcular a posição do texto no canvas (com escala)
-                                    const x = item.transform[4] * scale + canvasOffsetX - 21; // Ajuste para a escala e deslocamento horizontal
-                                    const y = (viewport.height - item.transform[5] * scale - 15); // Inverter o eixo Y, ajustar para a escala e subir um pouco
+                                    // Cálculo da posição (ajustado para escala)
+                                    const x = item.transform[4] * scale + canvasOffsetX - 21;
+                                    const y = viewport.height - item.transform[5] * scale - 15;
 
                                     // Criar radio button
                                     const radio = document.createElement('input');
                                     radio.type = 'radio';
-                                    radio.name = `question${questionIndex}`; // Nome único para cada questão
-                                    radio.value = alt.replace(/[()]/g, ''); // Remover parênteses do valor
+                                    radio.name = `question${questionIndex}`;
+                                    radio.value = alt.replace(/[()]/g, '');
 
-                                    // Criar container para o radio button
+                                    // Container para o radio button
                                     const container = document.createElement('div');
                                     container.className = 'radio-container';
                                     container.style.left = `${x}px`;
                                     container.style.top = `${y}px`;
                                     container.appendChild(radio);
 
-                                    // Adicionar ao overlay
                                     overlay.appendChild(container);
 
-                                    // Incrementar o questionIndex APÓS criar o radio button
+                                    // Incrementar o índice após a opção "e)"
                                     if (alt.toLowerCase() === 'e)' || alt.toLowerCase() === '(e)') {
                                         questionIndex++;
                                     }
@@ -106,89 +106,64 @@ document.addEventListener('DOMContentLoaded', function() {
                             });
                         });
                     });
-
-                    // Renderizar a próxima página, se houver
-                    if (pageNum < pdf.numPages) {
-                        pageNumber++;
-                        renderPage(pageNumber);
-                    }
                 });
+
+                // Renderizar próxima página (se existir)
+                if (pageNum < pdf.numPages) {
+                    pageNumber++;
+                    renderPage(pageNumber);
+                }
             };
 
-            // Começar a renderização pela primeira página
+            // Iniciar renderização
             renderPage(pageNumber);
         });
     }
 
+    // Processar texto do gabarito
     const input = document.getElementById("colargabarito");
-    document.getElementById("btn_resultado").addEventListener("click", pegar_valores);
+    input.addEventListener("input", processarTexto);
 
-    input.addEventListener("input", function () {
-        processarTexto();
-    });
-
+    // Função para processar o texto
     function processarTexto() {
-        let texto = document.getElementById('colargabarito').value;
+        let texto = input.value;
         let numeros = [];
         let letras = [];
-
-        let i = 0;
         let tempNumero = '';
         let tempLetras = '';
 
-        // Função para processar o texto
-        while (i < texto.length) {
-            let char = texto[i];
-
-            // Se for um número, acumulamos no tempNumero
+        for (let char of texto) {
             if (/\d/.test(char)) {
                 tempNumero += char;
-            } else if (/[a-eA-E]/.test(char)) {
-                // Se for uma letra entre a-e (considerando maiúsculas e minúsculas)
+            } else if (/[a-e]/i.test(char)) {
                 tempLetras += char.toLowerCase();
             } else {
-                // Quando encontramos um caractere que não é número nem letra
-                if (tempNumero !== '') {
-                    // Remover zeros à esquerda do número
-                    let numeroFinal = parseInt(tempNumero, 10);
-                    numeros.push(numeroFinal);
-                    tempNumero = ''; // Limpar temporário para o próximo número
+                if (tempNumero) {
+                    numeros.push(parseInt(tempNumero, 10));
+                    tempNumero = '';
                 }
-                if (tempLetras !== '') {
-                    // Adicionar as letras ao array de letras
+                if (tempLetras) {
                     letras.push(...tempLetras.split(''));
-                    tempLetras = ''; // Limpar letras para o próximo conjunto
+                    tempLetras = '';
                 }
             }
-
-            i++;
         }
 
-        // Verificar se restaram números ou letras no final
-        if (tempNumero !== '') {
-            let numeroFinal = parseInt(tempNumero, 10);
-            numeros.push(numeroFinal);
-        }
-        if (tempLetras !== '') {
-            letras.push(...tempLetras.split(''));
-        }
+        // Adicionar restos
+        if (tempNumero) numeros.push(parseInt(tempNumero, 10));
+        if (tempLetras) letras.push(...tempLetras.split(''));
     }
 
-    // Definir a função globalmente
-    window.pegar_valores = function pegar_valores() {
-        let radios = document.querySelectorAll('input[type="radio"]');
-        let grupos = {};
+    // Botão de resultado
+    document.getElementById("btn_resultado").addEventListener("click", pegar_valores);
 
-        radios.forEach(radio => {
-            if (!grupos[radio.name]) {
-                grupos[radio.name] = "";
-            }
-            if (radio.checked) {
-                grupos[radio.name] = radio.value;
-            }
+    // Função para coletar valores dos radios
+    window.pegar_valores = function() {
+        const grupos = {};
+        document.querySelectorAll('input[type="radio"]').forEach(radio => {
+            if (!grupos[radio.name]) grupos[radio.name] = "";
+            if (radio.checked) grupos[radio.name] = radio.value;
         });
-
-        let valores = Object.values(grupos);
-        alert(valores);
+        alert(Object.values(grupos));
     };
 });
