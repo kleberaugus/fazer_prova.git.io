@@ -122,8 +122,57 @@ function loadPDF(data) {
  const input = document.getElementById("colargabarito");
 
   input.addEventListener("input", function () {
-
+    processarTexto(); 
       
-  }
+  })
 
+function processarTexto() {
+            let texto = document.getElementById('colarpdf').value;
+            let numeros = [];
+            let letras = [];
 
+            let i = 0;
+            let tempNumero = '';
+            let tempLetras = '';
+
+            // Função para processar o texto
+            while (i < texto.length) {
+                let char = texto[i];
+
+                // Se for um número, acumulamos no tempNumero
+                if (/\d/.test(char)) {
+                    tempNumero += char;
+                } else if (/[a-eA-E]/.test(char)) {
+                    // Se for uma letra entre a-e (considerando maiúsculas e minúsculas)
+                    tempLetras += char.toLowerCase();
+                } else {
+                    // Quando encontramos um caractere que não é número nem letra
+                    if (tempNumero !== '') {
+                        // Remover zeros à esquerda do número
+                        let numeroFinal = parseInt(tempNumero, 10);
+                        numeros.push(numeroFinal);
+                        tempNumero = ''; // Limpar temporário para o próximo número
+                    }
+                    if (tempLetras !== '') {
+                        // Adicionar as letras ao array de letras
+                        letras.push(...tempLetras.split(''));
+                        tempLetras = ''; // Limpar letras para o próximo conjunto
+                    }
+                }
+
+                i++;
+            }
+
+            // Verificar se restaram números ou letras no final
+            if (tempNumero !== '') {
+                let numeroFinal = parseInt(tempNumero, 10);
+                numeros.push(numeroFinal);
+            }
+            if (tempLetras !== '') {
+                letras.push(...tempLetras.split(''));
+            }
+
+            // Atualizar a interface com os resultados
+            console.log(JSON.stringify(numeros));
+           console.log(JSON.stringify(letras));
+        }
