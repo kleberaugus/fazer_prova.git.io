@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
 
                     // Extrair o texto da página
-                   page.getTextContent().then(textContent => {
+page.getTextContent().then(textContent => {
     const textItems = textContent.items;
     const pageWidth = viewport.width;
     const midPage = pageWidth / 2; // Ponto médio para separar colunas
@@ -134,7 +134,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let newIndex = processColumn(leftColumn, questionIndex);
     questionIndex = processColumn(rightColumn, newIndex);
 });
-
                 // Renderizar próxima página (se existir)
                 if (pageNum < pdf.numPages) {
                     pageNumber++;
