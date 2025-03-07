@@ -1,166 +1,62 @@
-// Importe o PDF.js no topo do arquivo (nível superior do módulo)
-import * as pdfjsLib from './pdfjs/pdf.mjs';
-
-// Configuração do worker (também no topo)
-pdfjsLib.GlobalWorkerOptions.workerSrc = './pdfjs/pdf.worker.mjs';
-
-// Função para coletar valores dos radios (fora do DOMContentLoaded)
-window.pegar_valores = function() {
-    const grupos = {};
-    document.querySelectorAll('input[type="radio"]').forEach(radio => {
-        if (!grupos[radio.name]) grupos[radio.name] = "";
-        if (radio.checked) grupos[radio.name] = radio.value;
-    });
-    alert(Object.values(grupos));
-};
-
-// Aguarde o DOM estar pronto
-document.addEventListener('DOMContentLoaded', () => {
-    // Elementos da interface
-    const pdfInput = document.getElementById('pdf-input');
-    const pdfViewer = document.getElementById('pdf-viewer');
-
-    // Quando o usuário seleciona um PDF
-    pdfInput.addEventListener('change', function (event) {
-        const file = event.target.files[0];
-        if (file && file.type === 'application/pdf') {
-            const fileReader = new FileReader();
-            fileReader.onload = function () {
-                const typedArray = new Uint8Array(this.result);
-                loadPDF(typedArray);
-            };
-            fileReader.readAsArrayBuffer(file);
-        } else {
-            alert('Por favor, selecione um arquivo PDF válido.');
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Click no botão para carregar o PDF da PROVA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
         }
-    });
-
-    // Função para carregar o PDF
-    function loadPDF(data) {
-        pdfjsLib.getDocument({ data }).promise.then(pdf => {
-            pdfViewer.innerHTML = ''; // Limpar o visualizador
-            let pageNumber = 1;
-            let questionIndex = 1; // Reinicializar questionIndex aqui
-
-            // Função para renderizar uma página
-            const renderPage = (pageNum) => {
-                pdf.getPage(pageNum).then(page => {
-                    const scale = 1.5;
-                    const viewport = page.getViewport({ scale });
-
-                    // Criar container para a página
-                    const pageContainer = document.createElement('div');
-                    pageContainer.className = 'page-container';
-                    pdfViewer.appendChild(pageContainer);
-
-                    // Criar canvas para renderização
-                    const canvas = document.createElement('canvas');
-                    const context = canvas.getContext('2d');
-                    canvas.height = viewport.height;
-                    canvas.width = viewport.width;
-                    pageContainer.appendChild(canvas);
-
-                    // Centralizar o canvas horizontalmente
-                    const canvasOffsetX = (pdfViewer.clientWidth - canvas.width) / 2;
-                    canvas.style.marginLeft = `${canvasOffsetX}px`;
-
-                    // Renderizar a página
-                    page.render({
-                        canvasContext: context,
-                        viewport: viewport
-                    });
-
-                    // Extrair o texto da página
-                    page.getTextContent().then(textContent => {
-                        const textItems = textContent.items;
-
-                        // Criar overlay para os radio buttons
-                        const overlay = document.createElement('div');
-                        overlay.className = 'radio-overlay';
-                        pageContainer.appendChild(overlay);
-
-                        // Adicionar radio buttons dinamicamente
-                        textItems.forEach(item => {
-                            const text = item.str.trim();
-
-                            // Verificar se a linha começa com "a)", "b)", etc.
-                            const alternatives = ['a)', 'b)', 'c)', 'd)', 'e)', '(a)', '(b)', '(c)', '(d)', '(e)'];
-                            alternatives.forEach(alt => {
-                                if (text.toLowerCase().startsWith(alt.toLowerCase())) {
-                                    // Cálculo da posição (ajustado para escala)
-                                    const x = item.transform[4] * scale + canvasOffsetX - 21;
-                                    const y = viewport.height - item.transform[5] * scale - 15;
-                console.log(questionIndex);
-                                    // Criar radio button
-                                    const radio = document.createElement('input');
-                                    radio.type = 'radio';
-                                    radio.name = `question${questionIndex}`;
-                                    radio.value = alt.replace(/[()]/g, '');
-
-                                    // Container para o radio button
-                                    const container = document.createElement('div');
-                                    container.className = 'radio-container';
-                                    container.style.left = `${x}px`;
-                                    container.style.top = `${y}px`;
-                                    container.appendChild(radio);
-
-                                    overlay.appendChild(container);
-
-                                    // Incrementar o índice após a opção "e)"
-                                    if (alt.toLowerCase() === 'e)' || alt.toLowerCase() === '(e)') {
-                                        questionIndex++;
-                                    }
-                                }
-                            });
-                        });
-                    });
-                });
-
-                // Renderizar próxima página (se existir)
-                if (pageNum < pdf.numPages) {
-                    pageNumber++;
-                    renderPage(pageNumber);
-                }
-            };
-
-            // Iniciar renderização
-            renderPage(pageNumber);
-        });
-    }
-
-    // Processar texto do gabarito
-    const input = document.getElementById("colargabarito");
-    input.addEventListener("input", processarTexto);
-
-    // Função para processar o texto
-    function processarTexto() {
-        let texto = input.value;
-        let numeros = [];
-        let letras = [];
-        let tempNumero = '';
-        let tempLetras = '';
-
-        for (let char of texto) {
-            if (/\d/.test(char)) {
-                tempNumero += char;
-            } else if (/[a-e]/i.test(char)) {
-                tempLetras += char.toLowerCase();
-            } else {
-                if (tempNumero) {
-                    numeros.push(parseInt(tempNumero, 10));
-                    tempNumero = '';
-                }
-                if (tempLetras) {
-                    letras.push(...tempLetras.split(''));
-                    tempLetras = '';
-                }
-            }
+        #pdf-viewer {
+            width: 100%;
+            height: 80vh;
+            border: 1px solid #ccc;
+            overflow-y: auto;
+            padding: 10px;
+            background: #f9f9f9;
+            position: relative;
         }
+        .page-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .page-container canvas {
+            display: block;
+            margin: 0 auto;
+        }
+        .radio-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .radio-container {
+            position: absolute;
+            display: flex;
+            align-items: center;
+        }
+        .radio-container input[type="radio"] {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Click no botão para carregar o PDF da PROVA</h1>
+    <input type="text" placeholder="Cole aqui o gabarito" style="width: 200px; padding: 5px;">
 
-        // Adicionar restos
-        if (tempNumero) numeros.push(parseInt(tempNumero, 10));
-        if (tempLetras) letras.push(...tempLetras.split(''));
-    }
+<input type="file" id="pdf-input" accept="application/pdf">
+    <div id="pdf-viewer"></div>
+
+    
+
+
+    <!-- Carregue o script como um módulo -->
+    <script type="module" src="app.js"></script>
+</body>
+</html>
 
     // Botão de resultado
     document.getElementById("btn_resultado").addEventListener("click", pegar_valores);
