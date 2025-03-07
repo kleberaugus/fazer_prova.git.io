@@ -175,9 +175,10 @@ page.getTextContent().then(textContent => {
             }
         }
 
-        // Adicionar restos
-        if (tempNumero) numeros.push(parseInt(tempNumero, 10));
-        if (tempLetras) letras.push(...tempLetras.split(''));
+       
+// Adicionar restos
+if (tempNumero) numeros.push(parseInt(tempNumero, 10)); 
+if (tempLetras) letras.push(...tempLetras.split(''));
     }
 
     // Botão de resultado
