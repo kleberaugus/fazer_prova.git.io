@@ -34,13 +34,13 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Por favor, selecione um arquivo PDF válido.');
         }
     });
-
+    let questionIndex = 1; // Reinicializar questionIndex aqui
     // Função para carregar o PDF
     function loadPDF(data) {
         pdfjsLib.getDocument({ data }).promise.then(pdf => {
             pdfViewer.innerHTML = ''; // Limpar o visualizador
             let pageNumber = 1;
-            let questionIndex = 1; // Reinicializar questionIndex aqui
+
 
             // Função para renderizar uma página
             const renderPage = (pageNum) => {
