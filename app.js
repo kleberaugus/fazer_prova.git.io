@@ -71,50 +71,69 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
 
                     // Extrair o texto da página
-                    page.getTextContent().then(textContent => {
-                        const textItems = textContent.items;
+                   page.getTextContent().then(textContent => {
+    const textItems = textContent.items;
+    const pageWidth = viewport.width;
+    const midPage = pageWidth / 2; // Ponto médio para separar colunas
 
-                        // Criar overlay para os radio buttons
-                        const overlay = document.createElement('div');
-                        overlay.className = 'radio-overlay';
-                        pageContainer.appendChild(overlay);
+    // Separar itens em colunas esquerda e direita
+    const leftColumn = [];
+    const rightColumn = [];
 
-                        // Adicionar radio buttons dinamicamente
-                        textItems.forEach(item => {
-                            const text = item.str.trim();
+    textItems.forEach(item => {
+        const xPos = item.transform[4] * scale;
+        if (xPos < midPage - 50) { // Margem para evitar falsas colunas
+            leftColumn.push(item);
+        } else {
+            rightColumn.push(item);
+        }
+    });
 
-                            // Verificar se a linha começa com "a)", "b)", etc.
-                            const alternatives = ['a)', 'b)', 'c)', 'd)', 'e)', '(a)', '(b)', '(c)', '(d)', '(e)'];
-                            alternatives.forEach(alt => {
-                                if (text.toLowerCase().startsWith(alt.toLowerCase())) {
-                                    // Cálculo da posição (ajustado para escala)
-                                    const x = item.transform[4] * scale + canvasOffsetX - 21;
-                                    const y = viewport.height - item.transform[5] * scale - 15;
-                console.log(questionIndex);
-                                    // Criar radio button
-                                    const radio = document.createElement('input');
-                                    radio.type = 'radio';
-                                    radio.name = `question${questionIndex}`;
-                                    radio.value = alt.replace(/[()]/g, '');
+    // Função para ordenar itens verticalmente (do topo para baixo)
+    const sortVertical = (a, b) => b.transform[5] - a.transform[5];
 
-                                    // Container para o radio button
-                                    const container = document.createElement('div');
-                                    container.className = 'radio-container';
-                                    container.style.left = `${x}px`;
-                                    container.style.top = `${y}px`;
-                                    container.appendChild(radio);
+    // Processar colunas na ordem correta
+    const processColumn = (column, questionIndex) => {
+        let currentIndex = questionIndex;
+        column.sort(sortVertical).forEach(item => {
+            const text = item.str.trim();
+            const alternatives = ['a)', 'b)', 'c)', 'd)', 'e)', '(a)', '(b)', '(c)', '(d)', '(e)'];
+            
+            alternatives.forEach(alt => {
+                if (text.toLowerCase().startsWith(alt.toLowerCase())) {
+                    // Cálculo da posição
+                    const x = item.transform[4] * scale + canvasOffsetX - 21;
+                    const y = viewport.height - item.transform[5] * scale - 15;
 
-                                    overlay.appendChild(container);
+                    // Criar radio button
+                    const radio = document.createElement('input');
+                    radio.type = 'radio';
+                    radio.name = `question${currentIndex}`;
+                    radio.value = alt.replace(/[()]/g, '');
 
-                                    // Incrementar o índice após a opção "e)"
-                                    if (alt.toLowerCase() === 'e)' || alt.toLowerCase() === '(e)') {
-                                        questionIndex++;
-                                    }
-                                }
-                            });
-                        });
-                    });
-                });
+                    // Container para o radio button
+                    const container = document.createElement('div');
+                    container.className = 'radio-container';
+                    container.style.left = `${x}px`;
+                    container.style.top = `${y}px`;
+                    container.appendChild(radio);
+
+                    overlay.appendChild(container);
+
+                    // Incrementar apenas após a opção 'e)'
+                    if (alt.toLowerCase() === 'e)' || alt.toLowerCase() === '(e)') {
+                        currentIndex++;
+                    }
+                }
+            });
+        });
+        return currentIndex; // Retorna o último índice usado
+    };
+
+    // Processar colunas na ordem: esquerda -> direita
+    let newIndex = processColumn(leftColumn, questionIndex);
+    questionIndex = processColumn(rightColumn, newIndex);
+});
 
                 // Renderizar próxima página (se existir)
                 if (pageNum < pdf.numPages) {
