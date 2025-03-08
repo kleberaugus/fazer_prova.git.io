@@ -1,12 +1,12 @@
 // app.js
 import * as pdfjsLib from './pdfjs/pdf.mjs';
 pdfjsLib.GlobalWorkerOptions.workerSrc = './pdfjs/pdf.worker.mjs';
-//agora 123
 
 let questionIndex = 1;
 let numeros = [];
 let letras = [];
-let respostasUsuario = {}; // Mova a declaração para fora da função pegar_valoreswindow.pegar_valores = function() {
+let respostasUsuario = {}; // Mova a declaração para fora da função pegar_valores
+window.pegar_valores = function() {
     if (numeros.length === 0 || letras.length === 0) {
         alert("Por favor, cole o gabarito na caixa de texto");
         return;
@@ -90,7 +90,7 @@ let respostasUsuario = {}; // Mova a declaração para fora da função pegar_va
 
     detalhesHTML += '</table>';
 
-  mostrarModal(resumoHTML, detalhesHTML);
+    mostrarModal(resumoHTML, detalhesHTML);
     adicionarFeedbackVisual(detalhesQuestoes); // Adicionar feedback visual ao PDF
 };
 
@@ -133,38 +133,6 @@ function adicionarFeedbackVisual(detalhesQuestoes) {
         });
     });
 }
-
-// Função para processar o texto do gabarito e preencher arrays 'numeros' e 'letras'
-function processarTexto(textoGabarito) {
-    numeros = [];
-    letras = [];
-    let tempNumero = '';
-    let tempLetras = '';
-
-    for (let char of textoGabarito) {
-        if (/\d/.test(char)) {
-            tempNumero += char;
-        } else if (/[a-e]/i.test(char)) {
-            tempLetras += char.toLowerCase();
-        } else {
-            if (tempNumero) {
-                numeros.push(parseInt(tempNumero, 10));
-                tempNumero = '';
-            }
-            if (tempLetras) {
-                letras.push(...tempLetras.split(''));
-                tempLetras = '';
-            }
-        }
-    }
-
-    if (tempNumero) numeros.push(parseInt(tempNumero, 10));
-    if (tempLetras) letras.push(...tempLetras.split(''));
-
-    console.log("Números:", numeros);
-    console.log("Letras:", letras);
-}
-
 // Aguarde o DOM estar pronto
 document.addEventListener('DOMContentLoaded', () => {
     const pdfInput = document.getElementById('pdf-input');
