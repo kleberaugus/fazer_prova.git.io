@@ -170,3 +170,4 @@ document.addEventListener('DOMContentLoaded', () => {
     // Botão de resultado
     document.getElementById("btn_resultado").addEventListener("click", pegar_valores);
 });
+
