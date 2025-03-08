@@ -6,17 +6,12 @@ import * as pdfjsLib from './pdfjs/pdf.mjs';
 pdfjsLib.GlobalWorkerOptions.workerSrc = './pdfjs/pdf.worker.mjs';
 
 let questionIndex = 1;
+// Arrays para armazenar números e letras do gabarito processado
 let numeros = [];
 let letras = [];
 
 // Função para coletar valores dos radios e calcular o resultado
 window.pegar_valores = function() {
-    const inputGabarito = document.getElementById("colargabarito");
-    if (!inputGabarito.value.trim()) {
-        alert("Por favor, cole o gabarito na caixa de texto");
-        return;
-    }
-
     const respostasUsuario = {};
     document.querySelectorAll('input[type="radio"]').forEach(radio => {
         if (radio.checked) {
@@ -28,13 +23,13 @@ window.pegar_valores = function() {
     let totalAcertos = 0;
     let totalQuestoes = 0;
 
-    const configuracaoPesos = obterConfiguracaoPesos();
+    const configuracaoPesos = obterConfiguracaoPesos(); // Recupera a configuração de pesos do HTML
 
     for (let i = 0; i < numeros.length; i++) {
         const numeroQuestao = numeros[i];
         const respostaCorreta = letras[i];
         const nomeQuestao = `question${numeroQuestao}`;
-        let pesoQuestao = 1;
+        let pesoQuestao = 1; // Peso padrão
         totalQuestoes++;
 
         for (const grupo of configuracaoPesos) {
@@ -79,6 +74,9 @@ function processarTexto(textoGabarito) {
 
     if (tempNumero) numeros.push(parseInt(tempNumero, 10));
     if (tempLetras) letras.push(...tempLetras.split(''));
+
+    console.log("Números:", numeros);
+    console.log("Letras:", letras);
 }
 
 // Aguarde o DOM estar pronto
@@ -117,69 +115,71 @@ document.addEventListener('DOMContentLoaded', () => {
             letras = [];
 
             const renderPage = (pageNum) => {
-    pdf.getPage(pageNum).then(page => {
-        const scale = 1.5;
-        const viewport = page.getViewport({ scale });
+                pdf.getPage(pageNum).then(page => {
+                    const scale = 1.5;
+                    const viewport = page.getViewport({ scale });
 
-        const pageContainer = document.createElement('div');
-        pageContainer.className = 'page-container';
-        pdfViewer.appendChild(pageContainer);
+                    const pageContainer = document.createElement('div');
+                    pageContainer.className = 'page-container';
+                    pdfViewer.appendChild(pageContainer);
 
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-        pageContainer.appendChild(canvas);
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+                    pageContainer.appendChild(canvas);
 
-        page.render({
-            canvasContext: context,
-            viewport: viewport
-        });
+                    const canvasOffsetX = (pdfViewer.clientWidth - canvas.width) / 2;
+                    canvas.style.marginLeft = `${canvasOffsetX}px`;
 
-        page.getTextContent().then(textContent => {
-            const textItems = textContent.items;
-            const overlay = document.createElement('div');
-            overlay.className = 'radio-overlay';
-            pageContainer.appendChild(overlay);
+                    page.render({
+                        canvasContext: context,
+                        viewport: viewport
+                    });
 
-            textItems.forEach(item => {
-                const text = item.str.trim();
-                const alternativas = ['a)', 'b)', 'c)', 'd)', 'e)', '(a)', '(b)', '(c)', '(d)', '(e)'];
+                    page.getTextContent().then(textContent => {
+                        const textItems = textContent.items;
+                        const overlay = document.createElement('div');
+                        overlay.className = 'radio-overlay';
+                        pageContainer.appendChild(overlay);
 
-                alternativas.forEach(alt => {
-                    if (text.toLowerCase().startsWith(alt.toLowerCase())) {
-                        const x = item.transform[4] * scale - 20;
-                        const y = viewport.height - item.transform[5] * scale - 15;
+                        textItems.forEach(item => {
+                            const text = item.str.trim();
+                            const alternatives = ['a)', 'b)', 'c)', 'd)', 'e)', '(a)', '(b)', '(c)', '(d)', '(e)'];
 
-                        const radio = document.createElement('input');
-                        radio.type = 'radio';
-                        radio.name = `question${questionIndex}`;
-                        radio.value = alt.replace(/[()]/g, '');
+                            alternatives.forEach(alt => {
+                                if (text.toLowerCase().startsWith(alt.toLowerCase())) {
+                                    const x = item.transform[4] * scale + canvasOffsetX - 21;
+                                    const y = viewport.height - item.transform[5] * scale - 15;
 
-                        const container = document.createElement('div');
-                        container.className = 'radio-container';
-                        container.style.left = `${x}px`;
-                        container.style.top = `${y}px`;
-                        container.appendChild(radio);
+                                    const radio = document.createElement('input');
+                                    radio.type = 'radio';
+                                    radio.name = `question${questionIndex}`;
+                                    radio.value = alt.replace(/[()]/g, '');
 
-                        overlay.appendChild(container);
+                                    const container = document.createElement('div');
+                                    container.className = 'radio-container';
+                                    container.style.left = `${x}px`;
+                                    container.style.top = `${y}px`;
+                                    container.appendChild(radio);
 
-                        if (alt.toLowerCase() === 'e)' || alt.toLowerCase() === '(e)') {
-                            questionIndex++;
-                        }
+                                    overlay.appendChild(container);
+
+                                    if (alt.toLowerCase() === 'e)' || alt.toLowerCase() === '(e)') {
+                                        questionIndex++;
+                                    }
+                                }
+                            });
+                        });
+                    });
+
+                    if (pageNum < pdf.numPages) {
+                        renderPage(pageNum + 1);
                     }
                 });
-            });
-        });
-
-        if (pageNum < pdf.numPages) {
-            renderPage(pageNum + 1);
-        }
-    });
-};
+            };
 
             renderPage(pageNumber);
         });
     }
 });
-
