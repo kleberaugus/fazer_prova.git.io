@@ -28,7 +28,7 @@
         /* Área principal do PDF */
         #main-content {
             flex: 1;
-            max-width: calc(100% - 320px);
+            /* max-width: calc(100% - 320px);  Retirei max-width para teste, se necessário reintroduzir e ajustar */
         }
 
         /* Estilização de grupos de peso */
@@ -112,24 +112,56 @@
         }
 
         #colargabarito{
-            
+
         }
 
         #btn_resultado{
-            
+
+        }
+
+        /* CSS para PDF Viewer e Radio Buttons - Mantido do primeiro HTML */
+        #pdf-viewer {
+            width: 100%;
+            height: 80vh;
+            border: 1px solid #ccc;
+            overflow-y: auto;
+            padding: 10px;
+            background: #f9f9f9;
+            position: relative; /* Important: Positioning context for overlay */
+        }
+        .page-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .page-container canvas {
+            display: block;
+            margin: 0 auto;
+        }
+        .radio-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .radio-container {
+            position: absolute;
+            display: flex;
+            align-items: center;
+        }
+        .radio-container input[type="radio"] {
+            margin-right: 5px;
         }
     </style>
 </head>
 <body>
-    <!-- Painel de controle lateral -->
     <div id="sidebar">
         <div class="panel-header">
             <h2>Configuração de Pontuação</h2>
             <button onclick="adicionarGrupo()">+ Grupo</button>
         </div>
-        
+
         <div id="grupos-container">
-            <!-- Grupos serão adicionados dinamicamente aqui -->
             <div class="grupo-peso">
                 <div class="input-group">
                     <label>Questões:</label>
@@ -155,9 +187,7 @@
         </div>
     </div>
 
-    <!-- Conteúdo principal -->
     <div id="main-content">
-        <!-- O conteúdo original do PDF viewer aqui -->
         <h1>Click no botão para carregar o PDF da PROVA</h1>
         <button id="btn_resultado">Ver Resultado</button>
         <input type="text" id="colargabarito" placeholder="Cole aqui o gabarito" style="width: 200px; padding: 5px;">
@@ -204,7 +234,7 @@
                 const inicio = grupo.querySelector('.questao-inicio').value;
                 const fim = grupo.querySelector('.questao-fim').value;
                 const peso = grupo.querySelector('.peso').value;
-                
+
                 if(inicio && fim && peso) {
                     grupos.push({
                         inicio: parseInt(inicio),
