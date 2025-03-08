@@ -1,24 +1,87 @@
+// app.js
 // Importe o PDF.js no topo do arquivo (nível superior do módulo)
 import * as pdfjsLib from './pdfjs/pdf.mjs';
-//agora
+
 // Configuração do worker (também no topo)
 pdfjsLib.GlobalWorkerOptions.workerSrc = './pdfjs/pdf.worker.mjs';
 
-// Função para coletar valores dos radios (fora do DOMContentLoaded)
+let questionIndex = 1;
+// Arrays para armazenar números e letras do gabarito processado
+let numeros = [];
+let letras = [];
+
+// Função para coletar valores dos radios e calcular o resultado
 window.pegar_valores = function() {
-    const grupos = {};
+    const respostasUsuario = {};
     document.querySelectorAll('input[type="radio"]').forEach(radio => {
-        if (!grupos[radio.name]) grupos[radio.name] = "";
-        if (radio.checked) grupos[radio.name] = radio.value;
+        if (radio.checked) {
+            respostasUsuario[radio.name] = radio.value;
+        }
     });
-    alert(Object.values(grupos));
+
+    let pontuacao = 0;
+    let totalQuestoes = 0;
+
+    // Vamos iterar usando o array 'numeros' como guia, e usar o índice para 'letras'
+    for (let i = 0; i < numeros.length; i++) {
+        const numeroQuestao = numeros[i]; // Número da questão do array 'numeros'
+        const respostaCorreta = letras[i];   // Resposta correta correspondente do array 'letras'
+        const nomeQuestao = `question${numeroQuestao}`; // Formato do name dos radio buttons
+
+        totalQuestoes++; // Incrementa o total de questões consideradas
+
+        if (respostasUsuario[nomeQuestao] && respostasUsuario[nomeQuestao].toLowerCase() === respostaCorreta.toLowerCase()) {
+            pontuacao++; // Incrementa a pontuação se a resposta do usuário for igual à correta
+        }
+    }
+
+    alert(`Resultado: ${pontuacao} acertos de ${totalQuestoes} questões.`);
 };
+
+// Função para processar o texto do gabarito e preencher arrays 'numeros' e 'letras'
+function processarTexto(textoGabarito) { // Aceita o valor do input como argumento
+    let texto = textoGabarito; // Usa o argumento diretamente
+    numeros = []; // Limpa os arrays ao processar um novo texto
+    letras = [];
+    let tempNumero = '';
+    let tempLetras = '';
+
+    for (let char of texto) {
+        if (/\d/.test(char)) {
+            tempNumero += char;
+        } else if (/[a-e]/i.test(char)) {
+            tempLetras += char.toLowerCase();
+        } else {
+            if (tempNumero) {
+                numeros.push(parseInt(tempNumero, 10));
+                tempNumero = '';
+            }
+            if (tempLetras) {
+                letras.push(...tempLetras.split(''));
+                tempLetras = '';
+            }
+        }
+    }
+
+    // Adicionar restos
+    if (tempNumero) numeros.push(parseInt(tempNumero, 10));
+    if (tempLetras) letras.push(...tempLetras.split(''));
+     console.log("Números:", numeros); // Para debug
+     console.log("Letras:", letras);   // Para debug
+}
 
 // Aguarde o DOM estar pronto
 document.addEventListener('DOMContentLoaded', () => {
     // Elementos da interface
     const pdfInput = document.getElementById('pdf-input');
     const pdfViewer = document.getElementById('pdf-viewer');
+    const inputGabarito = document.getElementById("colargabarito");
+    const btnResultado = document.getElementById("btn_resultado");
+
+    // Processar texto do gabarito - Event listener DENTRO do DOMContentLoaded
+    inputGabarito.addEventListener("input", function() {
+        processarTexto(inputGabarito.value); // Passa o valor do input para processarTexto
+    });
 
     // Quando o usuário seleciona um PDF
     pdfInput.addEventListener('change', function (event) {
@@ -34,12 +97,15 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Por favor, selecione um arquivo PDF válido.');
         }
     });
-    let questionIndex = 1; // Reinicializar questionIndex aqui
+
     // Função para carregar o PDF
     function loadPDF(data) {
         pdfjsLib.getDocument({ data }).promise.then(pdf => {
             pdfViewer.innerHTML = ''; // Limpar o visualizador
             let pageNumber = 1;
+            questionIndex = 1; // Resetar o índice de questões ao carregar um novo PDF
+            numeros = []; // Limpar arrays de gabarito ao carregar um novo PDF
+            letras = [];
 
             // Função para renderizar uma página
             const renderPage = (pageNum) => {
@@ -72,117 +138,61 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Extrair o texto da página
                     page.getTextContent().then(textContent => {
                         const textItems = textContent.items;
-                        const pageWidth = viewport.width;
-                        const midPage = pageWidth / 2; // Ponto médio para separar colunas
 
-                        // Separar itens em colunas esquerda e direita
-                        const leftColumn = [];
-                        const rightColumn = [];
+                        // Criar overlay para os radio buttons
+                        const overlay = document.createElement('div');
+                        overlay.className = 'radio-overlay';
+                        pageContainer.appendChild(overlay);
 
+                        // Adicionar radio buttons dinamicamente
                         textItems.forEach(item => {
-                            const xPos = item.transform[4] * scale;
-                            if (xPos < midPage - 50) { // Margem para evitar falsas colunas
-                                leftColumn.push(item);
-                            } else {
-                                rightColumn.push(item);
-                            }
-                        });
+                            const text = item.str.trim();
 
-                        // Função para ordenar itens verticalmente (do topo para baixo)
-                        const sortVertical = (a, b) => b.transform[5] - a.transform[5];
+                            // Verificar se a linha começa com "a)", "b)", etc.
+                            const alternatives = ['a)', 'b)', 'c)', 'd)', 'e)', '(a)', '(b)', '(c)', '(d)', '(e)'];
+                            alternatives.forEach(alt => {
+                                if (text.toLowerCase().startsWith(alt.toLowerCase())) {
+                                    // Cálculo da posição (ajustado para escala)
+                                    const x = item.transform[4] * scale + canvasOffsetX - 21;
+                                    const y = viewport.height - item.transform[5] * scale - 15;
 
-                        // Processar colunas na ordem correta
-                        const processColumn = (column, questionIndex) => {
-                            let currentIndex = questionIndex;
-                            column.sort(sortVertical).forEach(item => {
-                                const text = item.str.trim();
-                                const alternatives = ['a)', 'b)', 'c)', 'd)', 'e)', '(a)', '(b)', '(c)', '(d)', '(e)'];
+                                    // Criar radio button
+                                    const radio = document.createElement('input');
+                                    radio.type = 'radio';
+                                    radio.name = `question${questionIndex}`;
+                                    radio.value = alt.replace(/[()]/g, '');
 
-                                alternatives.forEach(alt => {
-                                    if (text.toLowerCase().startsWith(alt.toLowerCase())) {
-                                        // Cálculo da posição
-                                        const x = item.transform[4] * scale + canvasOffsetX - 21;
-                                        const y = viewport.height - item.transform[5] * scale - 15;
+                                    // Container para o radio button
+                                    const container = document.createElement('div');
+                                    container.className = 'radio-container';
+                                    container.style.left = `${x}px`;
+                                    container.style.top = `${y}px`;
+                                    container.appendChild(radio);
 
-                                        // Criar radio button
-                                        const radio = document.createElement('input');
-                                        radio.type = 'radio';
-                                        radio.name = `question${currentIndex}`;
-                                        radio.value = alt.replace(/[()]/g, '');
+                                    overlay.appendChild(container);
 
-                                        // Container para o radio button
-                                        const container = document.createElement('div');
-                                        container.className = 'radio-container';
-                                        container.style.left = `${x}px`;
-                                        container.style.top = `${y}px`;
-                                        container.appendChild(radio);
-
-                                        overlay.appendChild(container);
-
-                                        // Incrementar apenas após a opção 'e)'
-                                        if (alt.toLowerCase() === 'e)' || alt.toLowerCase() === '(e)') {
-                                            currentIndex++;
-                                        }
+                                    // Incrementar o índice após a opção "e)"
+                                    if (alt.toLowerCase() === 'e)' || alt.toLowerCase() === '(e)') {
+                                        questionIndex++;
                                     }
-                                });
+                                }
                             });
-                            return currentIndex; // Retorna o último índice usado
-                        };
-
-                        // Processar colunas na ordem: esquerda -> direita
-                        let newIndex = processColumn(leftColumn, questionIndex);
-                        questionIndex = processColumn(rightColumn, newIndex);
-                    }).then(() => { // Adicionado o fechamento do then e um then vazio para fechar o primeiro then
-                        // Renderizar próxima página (se existir)
-                        if (pageNum < pdf.numPages) {
-                            pageNumber++;
-                            renderPage(pageNumber);
-                        }
+                        });
                     });
-                });
-            };
 
-            // Iniciar renderização
-            renderPage(pageNumber);
-        });
-    }
+                    // Renderizar próxima página (se existir)
+                    if (pageNum < pdf.numPages) {
+                        pageNumber++;
+                        renderPage(pageNumber);
+                    }
+                };
 
-    // Processar texto do gabarito
-    const input = document.getElementById("colargabarito");
-    input.addEventListener("input", processarTexto);
-
-    // Função para processar o texto do gabarito e preencher arrays 'numeros' e 'letras'
-    function processarTexto() {
-        let texto = inputGabarito.value;
-        numeros = []; // Limpa os arrays ao processar um novo texto
-        letras = [];
-        let tempNumero = '';
-        let tempLetras = '';
-
-        for (let char of texto) {
-            if (/\d/.test(char)) {
-                tempNumero += char;
-            } else if (/[a-e]/i.test(char)) {
-                tempLetras += char.toLowerCase();
-            } else {
-                if (tempNumero) {
-                    numeros.push(parseInt(tempNumero, 10));
-                    tempNumero = '';
-                }
-                if (tempLetras) {
-                    letras.push(...tempLetras.split(''));
-                    tempLetras = '';
-                }
-            }
+                renderPage(pageNumber);
+            });
         }
-
-        // Adicionar restos
-        if (tempNumero) numeros.push(parseInt(tempNumero, 10));
-        if (tempLetras) letras.push(...tempLetras.split('')); // LINHA 149
-         console.log("Números:", numeros); // Para debug
-         console.log("Letras:", letras);   // Para debug
     }
 
-    // Botão de resultado
-    document.getElementById("btn_resultado").addEventListener("click", pegar_valores);
+
+    // Botão de resultado - Event listener DENTRO do DOMContentLoaded
+    btnResultado.addEventListener("click", pegar_valores);
 });
