@@ -1,7 +1,7 @@
 // app.js
 import * as pdfjsLib from './pdfjs/pdf.mjs';
 pdfjsLib.GlobalWorkerOptions.workerSrc = './pdfjs/pdf.worker.mjs';
-//now123
+//now234
 let questionIndex = 1;
 let numeros = [];
 let letras = [];
