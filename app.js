@@ -12,6 +12,13 @@ let letras = [];
 
 // Função para coletar valores dos radios e calcular o resultado
 window.pegar_valores = function() {
+    // Verificar se o gabarito foi fornecido
+    if (numeros.length === 0 || letras.length === 0) {
+        alert("Por favor, cole o gabarito na caixa de texto");
+        return; // Sai da função early se não houver gabarito
+    }
+
+    // Restante do código existente para cálculo de resultados
     const respostasUsuario = {};
     document.querySelectorAll('input[type="radio"]').forEach(radio => {
         if (radio.checked) {
@@ -23,13 +30,13 @@ window.pegar_valores = function() {
     let totalAcertos = 0;
     let totalQuestoes = 0;
 
-    const configuracaoPesos = obterConfiguracaoPesos(); // Recupera a configuração de pesos do HTML
+    const configuracaoPesos = obterConfiguracaoPesos();
 
     for (let i = 0; i < numeros.length; i++) {
         const numeroQuestao = numeros[i];
         const respostaCorreta = letras[i];
         const nomeQuestao = `question${numeroQuestao}`;
-        let pesoQuestao = 1; // Peso padrão
+        let pesoQuestao = 1;
         totalQuestoes++;
 
         for (const grupo of configuracaoPesos) {
