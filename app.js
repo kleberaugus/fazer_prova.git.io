@@ -1,40 +1,19 @@
-// Importe o PDF.js no topo do arquivo (nível superior do módulo
+// Importe o PDF.js no topo do arquivo (nível superior do módulo)
 import * as pdfjsLib from './pdfjs/pdf.mjs';
 
 // Configuração do worker (também no topo)
 pdfjsLib.GlobalWorkerOptions.workerSrc = './pdfjs/pdf.worker.mjs';
 
-let questionIndex = 1;
-// Arrays para armazenar números e letras do gabarito processado
-let numeros = [];
-let letras = [];
+            let questionIndex = 1;
 
-// Função para coletar valores dos radios e calcular o resultado
+// Função para coletar valores dos radios (fora do DOMContentLoaded)
 window.pegar_valores = function() {
-    const respostasUsuario = {};
+    const grupos = {};
     document.querySelectorAll('input[type="radio"]').forEach(radio => {
-        if (radio.checked) {
-            respostasUsuario[radio.name] = radio.value;
-        }
+        if (!grupos[radio.name]) grupos[radio.name] = "";
+        if (radio.checked) grupos[radio.name] = radio.value;
     });
-
-    let pontuacao = 0;
-    let totalQuestoes = 0;
-
-    // Vamos iterar usando o array 'numeros' como guia, e usar o índice para 'letras'
-    for (let i = 0; i < numeros.length; i++) {
-        const numeroQuestao = numeros[i]; // Número da questão do array 'numeros'
-        const respostaCorreta = letras[i];   // Resposta correta correspondente do array 'letras'
-        const nomeQuestao = `question${numeroQuestao}`; // Formato do name dos radio buttons
-
-        totalQuestoes++; // Incrementa o total de questões consideradas
-
-        if (respostasUsuario[nomeQuestao] && respostasUsuario[nomeQuestao].toLowerCase() === respostaCorreta.toLowerCase()) {
-            pontuacao++; // Incrementa a pontuação se a resposta do usuário for igual à correta
-        }
-    }
-
-    alert(`Resultado: ${pontuacao} acertos de ${totalQuestoes} questões.`);
+    alert(Object.values(grupos));
 };
 
 // Aguarde o DOM estar pronto
@@ -42,8 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Elementos da interface
     const pdfInput = document.getElementById('pdf-input');
     const pdfViewer = document.getElementById('pdf-viewer');
-    const inputGabarito = document.getElementById("colargabarito");
-    const btnResultado = document.getElementById("btn_resultado");
 
     // Quando o usuário seleciona um PDF
     pdfInput.addEventListener('change', function (event) {
@@ -65,9 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
         pdfjsLib.getDocument({ data }).promise.then(pdf => {
             pdfViewer.innerHTML = ''; // Limpar o visualizador
             let pageNumber = 1;
-            questionIndex = 1; // Resetar o índice de questões ao carregar um novo PDF
-            numeros = []; // Limpar arrays de gabarito ao carregar um novo PDF
-            letras = [];
+            // Variável para rastrear o número da questão
+
 
             // Função para renderizar uma página
             const renderPage = (pageNum) => {
@@ -106,6 +82,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         overlay.className = 'radio-overlay';
                         pageContainer.appendChild(overlay);
 
+
+
                         // Adicionar radio buttons dinamicamente
                         textItems.forEach(item => {
                             const text = item.str.trim();
@@ -141,27 +119,29 @@ document.addEventListener('DOMContentLoaded', () => {
                             });
                         });
                     });
+                });
 
-                    // Renderizar próxima página (se existir)
-                    if (pageNum < pdf.numPages) {
-                        pageNumber++;
-                        renderPage(pageNumber);
-                    }
-                };
+                // Renderizar próxima página (se existir)
+                if (pageNum < pdf.numPages) {
+                    pageNumber++;
+                    renderPage(pageNumber);
+                }
+            };
 
-                renderPage(pageNumber);
-            });
-        }
+            // Iniciar renderização
+            renderPage(pageNumber);
+        });
     }
 
     // Processar texto do gabarito
-    inputGabarito.addEventListener("input", processarTexto);
+    const input = document.getElementById("colargabarito");
+    input.addEventListener("input", processarTexto);
 
-    // Função para processar o texto do gabarito e preencher arrays 'numeros' e 'letras'
+    // Função para processar o texto
     function processarTexto() {
-        let texto = inputGabarito.value;
-        numeros = []; // Limpa os arrays ao processar um novo texto
-        letras = [];
+        let texto = input.value;
+        let numeros = [];
+        let letras = [];
         let tempNumero = '';
         let tempLetras = '';
 
@@ -185,10 +165,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Adicionar restos
         if (tempNumero) numeros.push(parseInt(tempNumero, 10));
         if (tempLetras) letras.push(...tempLetras.split(''));
-         console.log("Números:", numeros); // Para debug
-         console.log("Letras:", letras);   // Para debug
     }
 
     // Botão de resultado
-    btnResultado.addEventListener("click", pegar_valores);
+    document.getElementById("btn_resultado").addEventListener("click", pegar_valores);
 });
