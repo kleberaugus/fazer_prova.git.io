@@ -1,6 +1,6 @@
 // Importe o PDF.js no topo do arquivo (nível superior do módulo)
 import * as pdfjsLib from './pdfjs/pdf.mjs';
-
+//agora
 // Configuração do worker (também no topo)
 pdfjsLib.GlobalWorkerOptions.workerSrc = './pdfjs/pdf.worker.mjs';
 
