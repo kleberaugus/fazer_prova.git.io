@@ -1,7 +1,7 @@
 // app.js
 import * as pdfjsLib from './pdfjs/pdf.mjs';
 pdfjsLib.GlobalWorkerOptions.workerSrc = './pdfjs/pdf.worker.mjs';
-//now 987
+//now 123
 let questionIndex = 1;
 let numeros = [];
 let letras = [];
@@ -132,6 +132,37 @@ function adicionarFeedbackVisual(detalhesQuestoes) {
             }
         });
     });
+}
+
+// Função para processar o texto do gabarito e preencher arrays 'numeros' e 'letras'
+function processarTexto(textoGabarito) {
+    numeros = [];
+    letras = [];
+    let tempNumero = '';
+    let tempLetras = '';
+
+    for (let char of textoGabarito) {
+        if (/\d/.test(char)) {
+            tempNumero += char;
+        } else if (/[a-e]/i.test(char)) {
+            tempLetras += char.toLowerCase();
+        } else {
+            if (tempNumero) {
+                numeros.push(parseInt(tempNumero, 10));
+                tempNumero = '';
+            }
+            if (tempLetras) {
+                letras.push(...tempLetras.split(''));
+                tempLetras = '';
+            }
+        }
+    }
+
+    if (tempNumero) numeros.push(parseInt(tempNumero, 10));
+    if (tempLetras) letras.push(...tempLetras.split(''));
+
+    console.log("Números:", numeros);
+    console.log("Letras:", letras);
 }
 // Aguarde o DOM estar pronto
 document.addEventListener('DOMContentLoaded', () => {
