@@ -6,6 +6,32 @@ let questionIndex = 1;
 let numeros = [];
 let letras = [];
 let respostasUsuario = {}; // Mova a declaração para fora da função pegar_valores
+
+// Função para exibir o modal com resultados
+function mostrarModal(resumoHTML, detalhesHTML) {
+    const modal = document.getElementById('resultadoModal');
+    const resumoDiv = document.getElementById('resumo');
+    const detalhesDiv = document.getElementById('detalhes');
+    
+    resumoDiv.innerHTML = resumoHTML;
+    detalhesDiv.innerHTML = detalhesHTML;
+    
+    modal.style.display = 'block';
+
+    // Fechar modal ao clicar no X
+    document.getElementsByClassName('close')[0].onclick = function() {
+        modal.style.display = 'none';
+    }
+
+    // Fechar modal ao clicar fora
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    }
+}
+
+
 window.pegar_valores = function() {
     if (numeros.length === 0 || letras.length === 0) {
         alert("Por favor, cole o gabarito na caixa de texto");
