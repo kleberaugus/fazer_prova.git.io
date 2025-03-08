@@ -144,7 +144,7 @@ function adicionarFeedbackVisual(detalhesQuestoes) {
                 const icon = document.createElement('span');
                 icon.className = `feedback-icon correct-icon`;
                 icon.textContent = '✔';
-                icon.style.left = `${x-20}px`;
+                icon.style.left = `${x-15}px`;
                 icon.style.top = `${y}px`;
                 feedbackOverlay.appendChild(icon);
             } else if (radio.value.toLowerCase() === respostaUsuario.toLowerCase() && !questao.acertou) {
@@ -152,7 +152,7 @@ function adicionarFeedbackVisual(detalhesQuestoes) {
                 const icon = document.createElement('span');
                 icon.className = `feedback-icon incorrect-icon`;
                 icon.textContent = '✖';
-                icon.style.left = `${x+20}px`;
+                icon.style.left = `${x-15}px`;
                 icon.style.top = `${y}px`;
                 feedbackOverlay.appendChild(icon);
             }
