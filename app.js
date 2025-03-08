@@ -1,42 +1,17 @@
 // app.js
 import * as pdfjsLib from './pdfjs/pdf.mjs';
 pdfjsLib.GlobalWorkerOptions.workerSrc = './pdfjs/pdf.worker.mjs';
-//agora 987
+
 let questionIndex = 1;
 let numeros = [];
 let letras = [];
-
-// Função para exibir o modal com resultados
-function mostrarModal(resumoHTML, detalhesHTML) {
-    const modal = document.getElementById('resultadoModal');
-    const resumoDiv = document.getElementById('resumo');
-    const detalhesDiv = document.getElementById('detalhes');
-    
-    resumoDiv.innerHTML = resumoHTML;
-    detalhesDiv.innerHTML = detalhesHTML;
-    
-    modal.style.display = 'block';
-
-    // Fechar modal ao clicar no X
-    document.getElementsByClassName('close')[0].onclick = function() {
-        modal.style.display = 'none';
-    }
-
-    // Fechar modal ao clicar fora
-    window.onclick = function(event) {
-        if (event.target === modal) {
-            modal.style.display = 'none';
-        }
-    }
-}
-
-window.pegar_valores = function() {
+let respostasUsuario = {}; // Mova a declaração para fora da função pegar_valoreswindow.pegar_valores = function() {
     if (numeros.length === 0 || letras.length === 0) {
         alert("Por favor, cole o gabarito na caixa de texto");
         return;
     }
 
-    const respostasUsuario = {};
+    respostasUsuario = {}; // Inicializar respostasUsuario aqui
     document.querySelectorAll('input[type="radio"]').forEach(radio => {
         if (radio.checked) {
             respostasUsuario[radio.name] = radio.value.toLowerCase();
@@ -65,7 +40,7 @@ window.pegar_valores = function() {
 
         const respostaUsuario = respostasUsuario[nomeQuestao] || 'Não respondida';
         const acertou = respostaUsuario === respostaCorreta;
-        
+
         if (acertou) {
             pontuacao += pesoQuestao;
             totalAcertos++;
@@ -114,8 +89,49 @@ window.pegar_valores = function() {
 
     detalhesHTML += '</table>';
 
-    mostrarModal(resumoHTML, detalhesHTML);
+  mostrarModal(resumoHTML, detalhesHTML);
+    adicionarFeedbackVisual(detalhesQuestoes); // Adicionar feedback visual ao PDF
 };
+
+function adicionarFeedbackVisual(detalhesQuestoes) {
+    const radioOverlays = document.querySelectorAll('.radio-overlay');
+    radioOverlays.forEach(overlay => {
+        const pageContainer = overlay.parentElement;
+        const feedbackOverlay = document.createElement('div');
+        feedbackOverlay.className = 'feedback-overlay';
+        pageContainer.appendChild(feedbackOverlay);
+    });
+
+    detalhesQuestoes.forEach(questao => {
+        const nomeQuestao = `question${questao.numero}`;
+        const respostaUsuario = respostasUsuario[nomeQuestao] || 'Não respondida';
+        const radioContainers = document.querySelectorAll(`input[name="${nomeQuestao}"]`);
+
+        radioContainers.forEach(radio => {
+            const radioContainer = radio.parentElement;
+            const x = parseInt(radioContainer.style.left);
+            const y = parseInt(radioContainer.style.top);
+            const feedbackOverlay = radioContainer.parentElement.parentElement.querySelector('.feedback-overlay');
+            if (radio.value.toLowerCase() === questao.correta.toLowerCase()) {
+                radioContainer.classList.add('correct-answer');
+                const icon = document.createElement('span');
+                icon.className = `feedback-icon correct-icon`;
+                icon.textContent = '✔';
+                icon.style.left = `${x+20}px`;
+                icon.style.top = `${y}px`;
+                feedbackOverlay.appendChild(icon);
+            } else if (radio.value.toLowerCase() === respostaUsuario.toLowerCase() && !questao.acertou) {
+                radioContainer.classList.add('incorrect-answer');
+                const icon = document.createElement('span');
+                icon.className = `feedback-icon incorrect-icon`;
+                icon.textContent = '✖';
+                icon.style.left = `${x+20}px`;
+                icon.style.top = `${y}px`;
+                feedbackOverlay.appendChild(icon);
+            }
+        });
+    });
+}
 
 // Função para processar o texto do gabarito e preencher arrays 'numeros' e 'letras'
 function processarTexto(textoGabarito) {
