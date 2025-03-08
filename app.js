@@ -19,29 +19,47 @@ window.pegar_valores = function() {
         }
     });
 
-    let pontuacao = 0;
+    let pontuacao = 0; // Pontuação total ponderada
+    let totalAcertos = 0; // Contagem de acertos para exibição
     let totalQuestoes = 0;
+
+    const configuracaoPesos = obterConfiguracaoPesos(); // Recupera a configuração de pesos do HTML
 
     // Vamos iterar usando o array 'numeros' como guia, e usar o índice para 'letras'
     for (let i = 0; i < numeros.length; i++) {
-        const numeroQuestao = numeros[i]; // Número da questão do array 'numeros'
-        const respostaCorreta = letras[i];   // Resposta correta correspondente do array 'letras'
-        const nomeQuestao = `question${numeroQuestao}`; // Formato do name dos radio buttons
+        const numeroQuestao = numeros[i];
+        const respostaCorreta = letras[i];
+        const nomeQuestao = `question${numeroQuestao}`;
+        let pesoQuestao = 0; // Peso padrão caso não encontre grupo
 
-        totalQuestoes++; // Incrementa o total de questões consideradas
+        totalQuestoes++;
+
+        // Encontrar o peso da questão baseado na configuração
+        for (const grupo of configuracaoPesos) {
+            if (numeroQuestao >= grupo.inicio && numeroQuestao <= grupo.fim) {
+                pesoQuestao = grupo.peso;
+                break; // Assume que a questão pertence a apenas um grupo
+            }
+        }
+        // Se pesoQuestao ainda for 0 após o loop, usar peso padrão de 1 (ou tratar como erro, dependendo da lógica desejada)
+        if (pesoQuestao === 0) {
+            pesoQuestao = 1; // Peso padrão para questões fora de grupos definidos
+        }
+
 
         if (respostasUsuario[nomeQuestao] && respostasUsuario[nomeQuestao].toLowerCase() === respostaCorreta.toLowerCase()) {
-            pontuacao++; // Incrementa a pontuação se a resposta do usuário for igual à correta
+            pontuacao += pesoQuestao; // Adiciona o peso à pontuação
+            totalAcertos++; // Incrementa o contador de acertos
         }
     }
 
-    alert(`Resultado: ${pontuacao} acertos de ${totalQuestoes} questões.`);
+    alert(`Resultado: ${totalAcertos} acertos de ${totalQuestoes} questões.\nPontuação Total: ${pontuacao}`);
 };
 
 // Função para processar o texto do gabarito e preencher arrays 'numeros' e 'letras'
 function processarTexto(textoGabarito) {
     let texto = textoGabarito;
-    numeros = []; // Limpa os arrays ao processar um novo texto
+    numeros = [];
     letras = [];
     let tempNumero = '';
     let tempLetras = '';
@@ -188,11 +206,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         pageNumber++;
                         renderPage(pageNumber);
                     }
-                });
-            };
+                };
 
-            // Chamar a renderização da primeira página
-            renderPage(pageNumber);
-        });
+                renderPage(pageNumber);
+            });
+        }
     }
 });
