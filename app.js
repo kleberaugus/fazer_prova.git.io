@@ -223,80 +223,81 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+
+
     function loadPDF(data) {
-        pdfjsLib.getDocument({ data }).promise.then(pdf => {
-            pdfViewer.innerHTML = '';
-            let pageNumber = 1;
-            questionIndex = 1;
-            numeros = [];
-            letras = [];
+    pdfjsLib.getDocument({ data }).promise.then(pdf => {
+        pdfViewer.innerHTML = '';
+        let pageNumber = 1;
+        let gabaritoIndex = 0; // Índice para percorrer os números do gabarito
 
-            const renderPage = (pageNum) => {
-                pdf.getPage(pageNum).then(page => {
-                    const scale = 1.5;
-                    const viewport = page.getViewport({ scale });
+       const renderPage = (pageNum) => {
+    pdf.getPage(pageNum).then(page => {
+        const scale = 1.5;
+        const viewport = page.getViewport({ scale });
 
-                    const pageContainer = document.createElement('div');
-                    pageContainer.className = 'page-container';
-                    pdfViewer.appendChild(pageContainer);
+        const pageContainer = document.createElement('div');
+        pageContainer.className = 'page-container';
+        pdfViewer.appendChild(pageContainer);
 
-                    const canvas = document.createElement('canvas');
-                    const context = canvas.getContext('2d');
-                    canvas.height = viewport.height;
-                    canvas.width = viewport.width;
-                    pageContainer.appendChild(canvas);
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+        pageContainer.appendChild(canvas);
 
-                    const canvasOffsetX = (pdfViewer.clientWidth - canvas.width) / 2;
-                    canvas.style.marginLeft = `${canvasOffsetX}px`;
+        const canvasOffsetX = (pdfViewer.clientWidth - canvas.width) / 2;
+        canvas.style.marginLeft = `${canvasOffsetX}px`;
 
-                    page.render({
-                        canvasContext: context,
-                        viewport: viewport
-                    });
+        page.render({
+            canvasContext: context,
+            viewport: viewport
+        });
 
-                    page.getTextContent().then(textContent => {
-                        const textItems = textContent.items;
-                        const overlay = document.createElement('div');
-                        overlay.className = 'radio-overlay';
-                        pageContainer.appendChild(overlay);
+        page.getTextContent().then(textContent => {
+            const textItems = textContent.items;
+            const overlay = document.createElement('div');
+            overlay.className = 'radio-overlay';
+            pageContainer.appendChild(overlay);
 
-                        textItems.forEach(item => {
-                            const text = item.str.trim();
-                            const alternatives = ['a)', 'b)', 'c)', 'd)', 'e)', '(a)', '(b)', '(c)', '(d)', '(e)'];
+            textItems.forEach(item => {
+                const text = item.str.trim();
+                const alternatives = ['a)', 'b)', 'c)', 'd)', 'e)', '(a)', '(b)', '(c)', '(d)', '(e)'];
 
-                            alternatives.forEach(alt => {
-                                if (text.toLowerCase().startsWith(alt.toLowerCase())) {
-                                    const x = item.transform[4] * scale + canvasOffsetX - 21;
-                                    const y = viewport.height - item.transform[5] * scale - 15;
+                alternatives.forEach(alt => {
+                    if (text.toLowerCase().startsWith(alt.toLowerCase())) {
+                        const x = item.transform[4] * scale + canvasOffsetX - 21;
+                        const y = viewport.height - item.transform[5] * scale - 15;
 
-                                    const radio = document.createElement('input');
-                                    radio.type = 'radio';
-                                    radio.name = `question${questionIndex}`;
-                                    radio.value = alt.replace(/[()]/g, '');
+                        const radio = document.createElement('input');
+                        radio.type = 'radio';
+                        radio.name = `question${numeros[gabaritoIndex]}`; // Usar o número do gabarito
+                        radio.value = alt.replace(/[()]/g, '');
 
-                                    const container = document.createElement('div');
-                                    container.className = 'radio-container';
-                                    container.style.left = `${x}px`;
-                                    container.style.top = `${y}px`;
-                                    container.appendChild(radio);
+                        const container = document.createElement('div');
+                        container.className = 'radio-container';
+                        container.style.left = `${x}px`;
+                        container.style.top = `${y}px`;
+                        container.appendChild(radio);
 
-                                    overlay.appendChild(container);
+                        overlay.appendChild(container);
 
-                                    if (alt.toLowerCase() === 'e)' || alt.toLowerCase() === '(e)') {
-                                        questionIndex++;
-                                    }
-                                }
-                            });
-                        });
-                    });
-
-                    if (pageNum < pdf.numPages) {
-                        renderPage(pageNum + 1);
+                        if (alt.toLowerCase() === 'e)' || alt.toLowerCase() === '(e)') {
+                            gabaritoIndex++; // Avançar para o próximo número do gabarito
+                        }
                     }
                 });
-            };
+            });
+
+            if (pageNum < pdf.numPages) {
+                renderPage(pageNum + 1);
+            }
+        });
+    });
+};
+
 
             renderPage(pageNumber);
         });
     }
-});
+
