@@ -21,7 +21,7 @@ window.pegar_valores = function() {
 
     let pontuacao = 0;
     let totalAcertos = 0;
-    let totalQuestoes = 0;
+    let totalQuestoes = 10;
 
     const configuracaoPesos = obterConfiguracaoPesos(); // Recupera a configuração de pesos do HTML
 
