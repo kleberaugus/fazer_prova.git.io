@@ -117,30 +117,66 @@ document.addEventListener('DOMContentLoaded', () => {
             letras = [];
 
             const renderPage = (pageNum) => {
-                pdf.getPage(pageNum).then(page => {
-                    const scale = 1.5;
-                    const viewport = page.getViewport({ scale });
+    pdf.getPage(pageNum).then(page => {
+        const scale = 1.5;
+        const viewport = page.getViewport({ scale });
 
-                    const pageContainer = document.createElement('div');
-                    pageContainer.className = 'page-container';
-                    pdfViewer.appendChild(pageContainer);
+        const pageContainer = document.createElement('div');
+        pageContainer.className = 'page-container';
+        pdfViewer.appendChild(pageContainer);
 
-                    const canvas = document.createElement('canvas');
-                    const context = canvas.getContext('2d');
-                    canvas.height = viewport.height;
-                    canvas.width = viewport.width;
-                    pageContainer.appendChild(canvas);
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+        pageContainer.appendChild(canvas);
 
-                    page.render({
-                        canvasContext: context,
-                        viewport: viewport
-                    });
+        page.render({
+            canvasContext: context,
+            viewport: viewport
+        });
 
-                    if (pageNum < pdf.numPages) {
-                        renderPage(pageNum + 1);
+        page.getTextContent().then(textContent => {
+            const textItems = textContent.items;
+            const overlay = document.createElement('div');
+            overlay.className = 'radio-overlay';
+            pageContainer.appendChild(overlay);
+
+            textItems.forEach(item => {
+                const text = item.str.trim();
+                const alternativas = ['a)', 'b)', 'c)', 'd)', 'e)', '(a)', '(b)', '(c)', '(d)', '(e)'];
+
+                alternativas.forEach(alt => {
+                    if (text.toLowerCase().startsWith(alt.toLowerCase())) {
+                        const x = item.transform[4] * scale - 20;
+                        const y = viewport.height - item.transform[5] * scale - 15;
+
+                        const radio = document.createElement('input');
+                        radio.type = 'radio';
+                        radio.name = `question${questionIndex}`;
+                        radio.value = alt.replace(/[()]/g, '');
+
+                        const container = document.createElement('div');
+                        container.className = 'radio-container';
+                        container.style.left = `${x}px`;
+                        container.style.top = `${y}px`;
+                        container.appendChild(radio);
+
+                        overlay.appendChild(container);
+
+                        if (alt.toLowerCase() === 'e)' || alt.toLowerCase() === '(e)') {
+                            questionIndex++;
+                        }
                     }
                 });
-            };
+            });
+        });
+
+        if (pageNum < pdf.numPages) {
+            renderPage(pageNum + 1);
+        }
+    });
+};
 
             renderPage(pageNumber);
         });
