@@ -3,218 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analisador de Provas PDF</title>
+    <title>Click no botão para carregar o PDF da PROVA</title>
     <style>
-        /* Layout principal */
         body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            gap: 20px;
-            background: #f0f2f5;
+            font-family: Arial, sans-serif;
+            margin: 20px;
         }
-
-        /* Painel de controle lateral */
-        #sidebar {
-            width: 300px;
-            min-width: 250px;
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        /* Área principal do PDF */
-        #main-content {
-            flex: 1;
-            max-width: calc(100% - 320px);
-        }
-
-        /* Estilização de grupos de peso */
-        .grupo-peso {
-            padding: 15px;
-            margin-bottom: 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border: 1px solid #dee2e6;
-            transition: all 0.2s;
-        }
-
-        .grupo-peso:hover {
-            border-color: #adb5bd;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        .grupo-peso h3 {
-            margin: 0 0 10px 0;
-            font-size: 14px;
-            color: #495057;
-        }
-
-        /* Elementos de formulário */
-        .input-group {
-            margin-bottom: 10px;
-            display: flex;
-            gap: 10px;
-        }
-
-        .input-group label {
-            font-size: 12px;
-            color: #6c757d;
-            align-self: center;
-        }
-
-        .input-group input, .input-group select {
-            padding: 6px 8px;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            font-size: 14px;
+        #pdf-viewer {
             width: 100%;
+            height: 80vh;
+            border: 1px solid #ccc;
+            overflow-y: auto;
+            padding: 10px;
+            background: #f9f9f9;
+            position: relative;
         }
-
-        button {
-            background: #4dabf7;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        button:hover {
-            background: #339af0;
-        }
-
-        .btn-remover {
-            background: #ff6b6b;
-            padding: 4px 8px;
-            font-size: 12px;
-        }
-
-        .btn-remover:hover {
-            background: #fa5252;
-        }
-
-        /* Cabeçalho do painel */
-        .panel-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .page-container {
+            position: relative;
             margin-bottom: 20px;
         }
-
-        .panel-header h2 {
-            margin: 0;
-            font-size: 18px;
-            color: #343a40;
+        .page-container canvas {
+            display: block;
+            margin: 0 auto;
         }
-
+        .radio-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .radio-container {
+            position: absolute;
+            display: flex;
+            align-items: center;
+        }
+        .radio-container input[type="radio"] {
+            margin-right: 5px;
+        }
         #colargabarito{
-            
         }
-
         #btn_resultado{
-            
         }
     </style>
 </head>
 <body>
-    <!-- Painel de controle lateral -->
-    <div id="sidebar">
-        <div class="panel-header">
-            <h2>Configuração de Pontuação</h2>
-            <button onclick="adicionarGrupo()">+ Grupo</button>
-        </div>
-        
-        <div id="grupos-container">
-            <!-- Grupos serão adicionados dinamicamente aqui -->
-            <div class="grupo-peso">
-                <div class="input-group">
-                    <label>Questões:</label>
-                    <input type="number" placeholder="Início" min="1" class="questao-inicio">até
-                    <input type="number" placeholder="Fim" min="1" class="questao-fim">
-                </div>
-                <div class="input-group">
-                    <label>Peso:</label>
-                    <select class="peso">
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                        <option value="7">7</option>
-                        <option value="8">8</option>
-                        <option value="9">9</option>
-                    </select>
-                </div>
-                <button class="btn-remover" onclick="removerGrupo(this)">Remover</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Conteúdo principal -->
-    <div id="main-content">
-        <!-- O conteúdo original do PDF viewer aqui -->
-        <h1>Click no botão para carregar o PDF da PROVA</h1>
-        <button id="btn_resultado">Ver Resultado</button>
-        <input type="text" id="colargabarito" placeholder="Cole aqui o gabarito" style="width: 200px; padding: 5px;">
-        <input type="file" id="pdf-input" accept="application/pdf">
-        <div id="pdf-viewer"></div>
-    </div>
-
+    <h1>Click no botão para carregar o PDF da PROVA</h1>
+    <input type="text" id="colargabarito" placeholder="Cole aqui o gabarito" style="width: 200px; padding: 5px;">
+    <button id="btn_resultado">Saber Resultado</button>
+    <input type="file" id="pdf-input" accept="application/pdf">
+    <div id="pdf-viewer"></div>
     <script type="module" src="app.js"></script>
-
-    <script>
-        // Funções para manipulação de grupos
-        function adicionarGrupo() {
-            const novoGrupo = document.createElement('div');
-            novoGrupo.className = 'grupo-peso';
-            novoGrupo.innerHTML = `
-                <div class="input-group">
-                    <label>Questões:</label>
-                    <input type="number" placeholder="Início" min="1" class="questao-inicio">
-                    <input type="number" placeholder="Fim" min="1" class="questao-fim">
-                </div>
-                <div class="input-group">
-                    <label>Peso:</label>
-                    <select class="peso">
-                        ${Array.from({length: 9}, (_, i) => `<option value="${i+1}">${i+1}</option>`).join('')}
-                    </select>
-                </div>
-                <button class="btn-remover" onclick="removerGrupo(this)">Remover</button>
-            `;
-            document.getElementById('grupos-container').appendChild(novoGrupo);
-        }
-
-        function removerGrupo(botao) {
-            if(document.querySelectorAll('.grupo-peso').length > 1) {
-                botao.closest('.grupo-peso').remove();
-            } else {
-                alert('É necessário ter pelo menos um grupo!');
-            }
-        }
-
-        // Função para obter a configuração de pesos
-        window.obterConfiguracaoPesos = function() {
-            const grupos = [];
-            document.querySelectorAll('.grupo-peso').forEach(grupo => {
-                const inicio = grupo.querySelector('.questao-inicio').value;
-                const fim = grupo.querySelector('.questao-fim').value;
-                const peso = grupo.querySelector('.peso').value;
-                
-                if(inicio && fim && peso) {
-                    grupos.push({
-                        inicio: parseInt(inicio),
-                        fim: parseInt(fim),
-                        peso: parseInt(peso)
-                    });
-                }
-            });
-            return grupos;
-        };
-    </script>
 </body>
 </html>
