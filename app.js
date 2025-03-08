@@ -48,8 +48,7 @@ window.pegar_valores = function() {
     let pontuacao = 0;
     let totalAcertos = 0;
     let totalQuestoes = 0;
-    const detalhesQuestoes = [];
-    const configuracaoPesos = obterConfiguracaoPesos();
+    cconst configuracaoPesos = window.obterConfiguracaoPesos ? window.obterConfiguracaoPesos() : [{ inicio: 1, fim: 1000, peso: 1 }];
 
     for (let i = 0; i < numeros.length; i++) {
         const numeroQuestao = numeros[i];
