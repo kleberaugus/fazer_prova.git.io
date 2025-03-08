@@ -284,18 +284,20 @@ function loadPDF(data) {
                                 if (alt.toLowerCase() === 'e)' || alt.toLowerCase() === '(e)') {
                                     gabaritoIndex++;
                                 }
-                            }
+                               } 
+                            })
                         });
                     });
+                    
 
                     if (pageNum < pdf.numPages) {
                         renderPage(pageNum + 1);
                     }
-                });
-            });
-        };
+                
+           });
+      });      
 
         renderPage(pageNumber);
     }); // <-- Essa chave finaliza corretamente o `pdfjsLib.getDocument`
 } // <-- Essa chave finaliza `loadPDF`
-
+});
