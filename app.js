@@ -129,8 +129,14 @@ function adicionarFeedbackVisual(detalhesQuestoes) {
         pageContainer.appendChild(feedbackOverlay);
     });
 
+    // Criar um mapeamento entre números de questões e nomes de inputs
+    const numeroParaNome = {};
+    numeros.forEach((numero, index) => {
+        numeroParaNome[numero] = `question${numero}`;
+    });
+
     detalhesQuestoes.forEach(questao => {
-        const nomeQuestao = `question${questao.numero}`;
+        const nomeQuestao = numeroParaNome[questao.numero]; // Usar o mapeamento
         const respostaUsuario = respostasUsuario[nomeQuestao] || 'Não respondida';
         const radioContainers = document.querySelectorAll(`input[name="${nomeQuestao}"]`);
 
