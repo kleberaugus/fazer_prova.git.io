@@ -1,4 +1,4 @@
-// app.js
+// agora
 // Importe o PDF.js no topo do arquivo (nível superior do módulo)
 import * as pdfjsLib from './pdfjs/pdf.mjs';
 
