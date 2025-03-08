@@ -30,6 +30,7 @@ window.pegar_valores = function() {
         const respostaCorreta = letras[i];
         const nomeQuestao = `question${numeroQuestao}`;
         let pesoQuestao = 1; // Peso padrão
+        totalQuestoes++;
 
         for (const grupo of configuracaoPesos) {
             if (numeroQuestao >= grupo.inicio && numeroQuestao <= grupo.fim) {
