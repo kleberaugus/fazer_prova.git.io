@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         pageNumber++;
                         renderPage(pageNumber);
                     }
-                };
+                };}
 
                 renderPage(pageNumber);
             });
