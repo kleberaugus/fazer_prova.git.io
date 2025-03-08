@@ -70,7 +70,6 @@ function processarTexto(textoGabarito) {
      console.log("Letras:", letras);   // Para debug
 }
 
-
 // Aguarde o DOM estar pronto
 document.addEventListener('DOMContentLoaded', () => {
     // Elementos da interface
@@ -189,10 +188,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         pageNumber++;
                         renderPage(pageNumber);
                     }
-                };}
+                });
+            };
 
-                renderPage(pageNumber);
-            });
-        }
+            // Chamar a renderização da primeira página
+            renderPage(pageNumber);
+        });
     }
 });
