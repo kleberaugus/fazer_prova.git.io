@@ -85,6 +85,7 @@ function processarTexto(textoGabarito) {
     console.log("Letras:", letras);
 }
 
+
 // Aguarde o DOM estar pronto
 document.addEventListener('DOMContentLoaded', () => {
     const pdfInput = document.getElementById('pdf-input');
