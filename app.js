@@ -1,6 +1,7 @@
 // app.js
 import * as pdfjsLib from './pdfjs/pdf.mjs';
 pdfjsLib.GlobalWorkerOptions.workerSrc = './pdfjs/pdf.worker.mjs';
+//agora 123
 
 let questionIndex = 1;
 let numeros = [];
