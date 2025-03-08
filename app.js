@@ -1,69 +1,121 @@
-/* Estilos do Modal */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.7);
+// app.js
+import * as pdfjsLib from './pdfjs/pdf.mjs';
+pdfjsLib.GlobalWorkerOptions.workerSrc = './pdfjs/pdf.worker.mjs';
+
+let questionIndex = 1;
+let numeros = [];
+let letras = [];
+
+// Função para exibir o modal com resultados
+function mostrarModal(resumoHTML, detalhesHTML) {
+    const modal = document.getElementById('resultadoModal');
+    const resumoDiv = document.getElementById('resumo');
+    const detalhesDiv = document.getElementById('detalhes');
+    
+    resumoDiv.innerHTML = resumoHTML;
+    detalhesDiv.innerHTML = detalhesHTML;
+    
+    modal.style.display = 'block';
+
+    // Fechar modal ao clicar no X
+    document.getElementsByClassName('close')[0].onclick = function() {
+        modal.style.display = 'none';
+    }
+
+    // Fechar modal ao clicar fora
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    }
 }
 
-.modal-content {
-    background-color: #fefefe;
-    margin: 2% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 90%;
-    max-width: 800px;
-    max-height: 90vh;
-    overflow-y: auto;
-}
+window.pegar_valores = function() {
+    if (numeros.length === 0 || letras.length === 0) {
+        alert("Por favor, cole o gabarito na caixa de texto");
+        return;
+    }
 
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-}
+    const respostasUsuario = {};
+    document.querySelectorAll('input[type="radio"]').forEach(radio => {
+        if (radio.checked) {
+            respostasUsuario[radio.name] = radio.value.toLowerCase();
+        }
+    });
 
-.close:hover,
-.close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-}
+    let pontuacao = 0;
+    let totalAcertos = 0;
+    let totalQuestoes = 0;
+    const detalhesQuestoes = [];
+    const configuracaoPesos = obterConfiguracaoPesos();
 
-/* Estilos da tabela */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
-}
+    for (let i = 0; i < numeros.length; i++) {
+        const numeroQuestao = numeros[i];
+        const respostaCorreta = letras[i].toLowerCase();
+        const nomeQuestao = `question${numeroQuestao}`;
+        let pesoQuestao = 1;
+        totalQuestoes++;
 
-th, td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-}
+        for (const grupo of configuracaoPesos) {
+            if (numeroQuestao >= grupo.inicio && numeroQuestao <= grupo.fim) {
+                pesoQuestao = grupo.peso;
+                break;
+            }
+        }
 
-th {
-    background-color: #f5f5f5;
-}
+        const respostaUsuario = respostasUsuario[nomeQuestao] || 'Não respondida';
+        const acertou = respostaUsuario === respostaCorreta;
+        
+        if (acertou) {
+            pontuacao += pesoQuestao;
+            totalAcertos++;
+        }
 
-tr.correct {
-    background-color: #e8f5e9;
-}
+        detalhesQuestoes.push({
+            numero: numeroQuestao,
+            correta: respostaCorreta.toUpperCase(),
+            usuario: respostaUsuario.toUpperCase(),
+            acertou: acertou,
+            peso: pesoQuestao
+        });
+    }
 
-tr.incorrect {
-    background-color: #ffebee;
-}
+    // Gerar HTML do resumo
+    const resumoHTML = `
+        <h3>Resumo:</h3>
+        <p>Acertos: ${totalAcertos} de ${totalQuestoes} questões</p>
+        <p>Pontuação Total: ${pontuacao}</p>
+    `;
 
-.correct td {
-    color: #2e7d32;
-}
+    // Gerar HTML da tabela detalhada
+    let detalhesHTML = `
+        <h3>Detalhamento por questão:</h3>
+        <table>
+            <tr>
+                <th>Questão</th>
+                <th>Resposta Correta</th>
+                <th>Sua Resposta</th>
+                <th>Status</th>
+                <th>Peso</th>
+            </tr>
+    `;
 
-.incorrect td {
-    color: #c62828;
-}
+    detalhesQuestoes.forEach(questao => {
+        detalhesHTML += `
+            <tr class="${questao.acertou ? 'correct' : 'incorrect'}">
+                <td>${questao.numero}</td>
+                <td>${questao.correta}</td>
+                <td>${questao.usuario}</td>
+                <td>${questao.acertou ? '✔' : '✖'}</td>
+                <td>${questao.peso}</td>
+            </tr>
+        `;
+    });
+
+    detalhesHTML += '</table>';
+
+    mostrarModal(resumoHTML, detalhesHTML);
+};
+
+// Restante do código permanece igual (processarTexto, event listeners, etc.)
+// ...
