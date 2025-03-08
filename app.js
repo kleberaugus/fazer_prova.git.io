@@ -1,21 +1,20 @@
 // app.js
 // Importe o PDF.js no topo do arquivo (nível superior do módulo)
 import * as pdfjsLib from './pdfjs/pdf.mjs';
-//agora
+
 // Configuração do worker (também no topo)
 pdfjsLib.GlobalWorkerOptions.workerSrc = './pdfjs/pdf.worker.mjs';
 
 let questionIndex = 1;
-// Arrays para armazenar números e letras do gabarito processado
 let numeros = [];
 let letras = [];
 
 // Função para coletar valores dos radios e calcular o resultado
-window.pegar_valores = function () {
-    const inputGabarito = document.getElementById("colargabarito"); // Obtenha o elemento inputGabarito
-    if (!inputGabarito.value.trim()) { // Verifica se o campo gabarito está vazio
-        alert("Por favor, insira o gabarito para calcular o resultado."); // Mensagem instrutiva
-        return; // Sai da função se o gabarito estiver vazio
+window.pegar_valores = function() {
+    const inputGabarito = document.getElementById("colargabarito");
+    if (!inputGabarito.value.trim()) {
+        alert("Por favor, cole o gabarito na caixa de texto");
+        return;
     }
 
     const respostasUsuario = {};
@@ -80,11 +79,7 @@ function processarTexto(textoGabarito) {
 
     if (tempNumero) numeros.push(parseInt(tempNumero, 10));
     if (tempLetras) letras.push(...tempLetras.split(''));
-
-    console.log("Números:", numeros);
-    console.log("Letras:", letras);
 }
-
 
 // Aguarde o DOM estar pronto
 document.addEventListener('DOMContentLoaded', () => {
@@ -93,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputGabarito = document.getElementById("colargabarito");
     const btnResultado = document.getElementById("btn_resultado");
 
-    inputGabarito.addEventListener("input", function () {
+    inputGabarito.addEventListener("input", function() {
         processarTexto(inputGabarito.value);
     });
 
@@ -136,48 +131,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     canvas.width = viewport.width;
                     pageContainer.appendChild(canvas);
 
-                    const canvasOffsetX = (pdfViewer.clientWidth - canvas.width) / 2;
-                    canvas.style.marginLeft = `${canvasOffsetX}px`;
-
                     page.render({
                         canvasContext: context,
                         viewport: viewport
-                    });
-
-                    page.getTextContent().then(textContent => {
-                        const textItems = textContent.items;
-                        const overlay = document.createElement('div');
-                        overlay.className = 'radio-overlay';
-                        pageContainer.appendChild(overlay);
-
-                        textItems.forEach(item => {
-                            const text = item.str.trim();
-                            const alternatives = ['a)', 'b)', 'c)', 'd)', 'e)', '(a)', '(b)', '(c)', '(d)', '(e)'];
-
-                            alternatives.forEach(alt => {
-                                if (text.toLowerCase().startsWith(alt.toLowerCase())) {
-                                    const x = item.transform[4] * scale + canvasOffsetX - 21;
-                                    const y = viewport.height - item.transform[5] * scale - 15;
-
-                                    const radio = document.createElement('input');
-                                    radio.type = 'radio';
-                                    radio.name = `question${questionIndex}`;
-                                    radio.value = alt.replace(/[()]/g, '');
-
-                                    const container = document.createElement('div');
-                                    container.className = 'radio-container';
-                                    container.style.left = `${x}px`;
-                                    container.style.top = `${y}px`;
-                                    container.appendChild(radio);
-
-                                    overlay.appendChild(container);
-
-                                    if (alt.toLowerCase() === 'e)' || alt.toLowerCase() === '(e)') {
-                                        questionIndex++;
-                                    }
-                                }
-                            });
-                        });
                     });
 
                     if (pageNum < pdf.numPages) {
@@ -190,3 +146,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
